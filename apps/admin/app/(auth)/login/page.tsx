@@ -6,7 +6,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { LockKeyhole, UserRound } from "lucide-react";
+import { LockKeyhole, ShieldUser, UserRound } from "lucide-react";
 import { useState } from "react";
 
 function LoginPage() {
@@ -14,12 +14,7 @@ function LoginPage() {
 
   return (
     <div className="bg-[#0A0A0A] min-h-screen flex flex-col items-center justify-center">
-      <img
-        src="/adminImg.png"
-        alt="admin-img"
-        className="w-[5rem] bg-neutral-500 rounded-full mb-4"
-      />
-      <h1 className="text-white font-bold text-[2rem] text-center">NITRUTSAV 2025-2026</h1>
+      <ShieldUser className="stroke-neutral-300" size={44} />
       <h2 className="text-neutral-400 text-[1.5rem] mt-2">Admin Login</h2>
       <form onSubmit={handleAdminLogin} className="flex flex-col gap-6 mt-8 w-[20rem]">
         <InputGroup className="border-[#373737] border-2 bg-[#151515]">
