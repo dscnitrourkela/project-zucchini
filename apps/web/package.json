@@ -12,12 +12,14 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@fireworks-js/react": "^2.10.8",
     "@repo/database": "workspace:*",
     "@repo/firebase-config": "workspace:*",
     "@repo/shared-types": "workspace:*",
     "@repo/shared-utils": "workspace:*",
     "@repo/ui": "workspace:*",
     "axios": "^1.13.2",
+    "fireworks-js": "^2.10.8",
     "cloudinary": "^2.8.0",
     "lucide-react": "^0.561.0",
     "next": "16.0.10",
