@@ -5,6 +5,7 @@ import Navbar from "../marginals/navbar";
 import CountdownTimer from "./countdown-timer";
 import MusicVisualizer from "./music-visualizer";
 import { heroImages } from "@/config/hero";
+import FireworksEffects from "../coming-soon/fireworks-effects";
 
 export default function Hero() {
   return (

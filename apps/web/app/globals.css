@@ -71,7 +71,7 @@
 
 .visualizer-bar {
   height: 1.5vw;
-  width: 0.15vw;
+  width: 0.3vw;
   border-radius: 50px;
   background: white;
   animation: scaler 2s ease-in-out infinite;
@@ -100,4 +100,19 @@
 .bar-5 {
   animation: scaler2 2s ease-in-out infinite;
   animation-duration: 1.7s;
+}
+
+/* Hot air balloon floating animation */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
