@@ -27,6 +27,8 @@ interface CheckRegistrationResponse {
   name: string | null;
   email: string | null;
   isPaymentVerified: boolean;
+  isNitrStudent: boolean;
+  isVerified: boolean;
 }
 
 export default function RegisterPage() {
@@ -55,16 +57,18 @@ export default function RegisterPage() {
               email: result.email!,
             });
 
-            if (result.isPaymentVerified) {
+            if (result.isPaymentVerified || (result.isNitrStudent && result.isVerified)) {
               setCurrentStep("complete");
             } else {
               setCurrentStep("payment");
             }
           } else {
+            // User not registered - show form
             setCurrentStep("form");
           }
         } catch (error) {
           console.error("Failed to check registration status:", error);
+          // On error, show form
           setCurrentStep("form");
         }
       }
@@ -87,12 +91,17 @@ export default function RegisterPage() {
     }
   };
 
-  const handleRegistrationComplete = () => {
+  const handleRegistrationComplete = (userId: number, isNitrStudent: boolean = false) => {
     setUserData({
       name: user?.displayName || "",
       email: user?.email || "",
     });
-    setCurrentStep("payment");
+
+    if (isNitrStudent) {
+      setCurrentStep("complete");
+    } else {
+      setCurrentStep("payment");
+    }
   };
 
   const handlePaymentSuccess = () => {

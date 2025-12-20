@@ -6,8 +6,10 @@ import { type Registration } from "@repo/shared-types";
 export async function POST(request: NextRequest) {
   try {
     const auth = await requireAuth(request);
-    const body: Registration = await request.json();
-    const result = await registerUser(body, auth.uid);
+    const body = await request.json();
+    const { isNitrStudent = false, ...formData } = body;
+
+    const result = await registerUser(formData as Registration, auth.uid, isNitrStudent);
     return handleResponse(result, 201);
   } catch (error) {
     return handleApiError(error, "Registration failed");

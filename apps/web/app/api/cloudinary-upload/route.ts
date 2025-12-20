@@ -13,8 +13,6 @@ cloudinary.config({
 
 export async function POST(request: NextRequest) {
   try {
-    // await requireAuth(request);
-
     if (
       !process.env.CLOUDINARY_CLOUD_NAME ||
       !process.env.CLOUDINARY_API_KEY ||

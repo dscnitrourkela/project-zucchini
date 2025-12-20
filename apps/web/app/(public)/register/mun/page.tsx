@@ -6,6 +6,7 @@ import { useApi } from "@repo/shared-utils";
 import { LoadingState, ProgressBar, AuthStep, CompleteStep } from "@/components/registration";
 import { MunRegistrationForm, MunPaymentButton } from "@/components/registration/mun";
 import type { MunRegistration } from "@repo/shared-types";
+import { toast } from "sonner";
 
 type RegistrationStep =
   | "auth"
@@ -38,6 +39,8 @@ interface CheckMunRegistrationResponse {
   isTeamMember?: boolean;
   isTeamLeader?: boolean;
   teamLeaderName?: string;
+  isNitrStudent?: boolean;
+  isVerified?: boolean;
 }
 
 export default function MunRegisterPage() {
@@ -48,6 +51,7 @@ export default function MunRegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isTeamRegistration, setIsTeamRegistration] = useState(false);
+  const [isNitrStudent, setIsNitrStudent] = useState(false);
   const [teamData, setTeamData] = useState<TeamData>({
     leader: null,
     teammate1: null,
@@ -56,23 +60,21 @@ export default function MunRegisterPage() {
 
   const { execute: checkRegistration } = useApi<CheckMunRegistrationResponse>();
 
-  // Restore team data from localStorage on mount
   useEffect(() => {
     const savedTeamData = localStorage.getItem("munTeamRegistration");
     const savedStep = localStorage.getItem("munCurrentStep");
     const savedIsTeamReg = localStorage.getItem("munIsTeamRegistration");
+    const savedIsNitrStudent = localStorage.getItem("munIsNitrStudent");
 
     if (savedTeamData) {
       try {
         const parsed = JSON.parse(savedTeamData);
         setTeamData(parsed);
 
-        // Restore step if saved
         if (savedStep) {
           setCurrentStep(savedStep as RegistrationStep);
         }
 
-        // Restore team registration flag
         if (savedIsTeamReg) {
           setIsTeamRegistration(savedIsTeamReg === "true");
         }
@@ -82,6 +84,10 @@ export default function MunRegisterPage() {
         localStorage.removeItem("munCurrentStep");
         localStorage.removeItem("munIsTeamRegistration");
       }
+    }
+
+    if (savedIsNitrStudent) {
+      setIsNitrStudent(savedIsNitrStudent === "true");
     }
   }, []);
 
@@ -101,28 +107,30 @@ export default function MunRegisterPage() {
               email: result.email!,
             });
 
-            if (result.isPaymentVerified) {
+            if (result.isPaymentVerified || (result.isNitrStudent && result.isVerified)) {
               setCurrentStep("complete");
             } else {
-              // Only set to payment if not already in a form step (from localStorage)
               const savedStep = localStorage.getItem("munCurrentStep");
               if (!savedStep || savedStep === "payment") {
                 setCurrentStep("payment");
               }
             }
           } else {
-            // Only set to form if not already restored from localStorage
-            const savedStep = localStorage.getItem("munCurrentStep");
-            if (!savedStep) {
-              setCurrentStep("form");
-            }
+            // User not registered - clear any saved state and show form
+            localStorage.removeItem("munCurrentStep");
+            localStorage.removeItem("munTeamRegistration");
+            localStorage.removeItem("munIsTeamRegistration");
+            localStorage.removeItem("munIsNitrStudent");
+            setCurrentStep("form");
           }
         } catch (error) {
           console.error("Failed to check MUN registration status:", error);
-          const savedStep = localStorage.getItem("munCurrentStep");
-          if (!savedStep) {
-            setCurrentStep("form");
-          }
+          // On error, clear saved state and show form
+          localStorage.removeItem("munCurrentStep");
+          localStorage.removeItem("munTeamRegistration");
+          localStorage.removeItem("munIsTeamRegistration");
+          localStorage.removeItem("munIsNitrStudent");
+          setCurrentStep("form");
         }
       }
 
@@ -149,38 +157,38 @@ export default function MunRegisterPage() {
   const handleRegistrationComplete = async (
     studentType: string,
     committeeChoice: string,
-    registrationData: MunRegistration
+    registrationData: MunRegistration,
+    isNitrStudent: boolean = false
   ) => {
-    // Check if this is a team registration (MOOT_COURT)
     if (committeeChoice === "MOOT_COURT") {
       setIsTeamRegistration(true);
       localStorage.setItem("munIsTeamRegistration", "true");
 
-      // Determine which step we're on and store data accordingly
       if (currentStep === "form" || currentStep === "form-leader") {
+        setIsNitrStudent(isNitrStudent);
+        localStorage.setItem("munIsNitrStudent", String(isNitrStudent));
+
         const updatedTeamData = { ...teamData, leader: registrationData };
         setTeamData(updatedTeamData);
-        // Save to localStorage
         localStorage.setItem("munTeamRegistration", JSON.stringify(updatedTeamData));
         localStorage.setItem("munCurrentStep", "form-teammate1");
         setCurrentStep("form-teammate1");
       } else if (currentStep === "form-teammate1") {
         const updatedTeamData = { ...teamData, teammate1: registrationData };
         setTeamData(updatedTeamData);
-        // Save to localStorage
         localStorage.setItem("munTeamRegistration", JSON.stringify(updatedTeamData));
         localStorage.setItem("munCurrentStep", "form-teammate2");
         setCurrentStep("form-teammate2");
       } else if (currentStep === "form-teammate2") {
         const updatedTeamData = { ...teamData, teammate2: registrationData };
         setTeamData(updatedTeamData);
-        // Save to localStorage
         localStorage.setItem("munTeamRegistration", JSON.stringify(updatedTeamData));
 
-        // All team data collected, register the team
         try {
           setIsLoading(true);
           setError(null);
+
+          console.log("[MUN Team Registration] isNitrStudent:", isNitrStudent);
 
           await registerTeam("mun/register", {
             method: "POST",
@@ -188,52 +196,92 @@ export default function MunRegisterPage() {
               leader: updatedTeamData.leader,
               teammate1: updatedTeamData.teammate1,
               teammate2: updatedTeamData.teammate2,
+              isNitrStudent,
             }),
           });
 
-          // Only proceed to payment if registration was successful
+          toast.success("Team registration successful!", {
+            description: isNitrStudent
+              ? "Your team registration is complete. No payment required for NIT Rourkela students."
+              : "Please proceed to payment to complete your team registration.",
+          });
+
           setUserData({
             name: user?.displayName || "",
             email: user?.email || "",
             studentType: studentType as "SCHOOL" | "COLLEGE",
             committeeChoice,
           });
-          localStorage.setItem("munCurrentStep", "payment");
-          setCurrentStep("payment");
+
+          if (isNitrStudent) {
+            console.log("[MUN] NITR student - skipping payment, going to complete");
+            localStorage.removeItem("munTeamRegistration");
+            localStorage.removeItem("munCurrentStep");
+            localStorage.removeItem("munIsTeamRegistration");
+            localStorage.removeItem("munIsNitrStudent");
+            setCurrentStep("complete");
+          } else {
+            console.log("[MUN] Regular student - proceeding to payment");
+            localStorage.setItem("munCurrentStep", "payment");
+            setCurrentStep("payment");
+          }
         } catch (error) {
-          setError(error instanceof Error ? error.message : "Failed to register team");
-          // Don't proceed to payment on error
+          const errorMessage = error instanceof Error ? error.message : "Failed to register team";
+          setError(errorMessage);
+          toast.error("Team registration failed", {
+            description: errorMessage,
+          });
           console.error("Team registration failed:", error);
         } finally {
           setIsLoading(false);
         }
       }
     } else {
-      // Individual registration (OVERNIGHT_CRISIS)
       setIsTeamRegistration(false);
       localStorage.setItem("munIsTeamRegistration", "false");
+
+      setIsNitrStudent(isNitrStudent);
+      localStorage.setItem("munIsNitrStudent", String(isNitrStudent));
 
       try {
         setIsLoading(true);
         setError(null);
 
+        console.log("[MUN Individual Registration] isNitrStudent:", isNitrStudent);
+
         await registerTeam("mun/register", {
           method: "POST",
-          body: JSON.stringify(registrationData),
+          body: JSON.stringify({
+            ...registrationData,
+            isNitrStudent,
+          }),
         });
 
-        // Only proceed to payment if registration was successful
+        toast.success("Registration successful!", {
+          description: isNitrStudent
+            ? "Your registration is complete. No payment required for NIT Rourkela students."
+            : "Please proceed to payment to complete your registration.",
+        });
+
         setUserData({
           name: user?.displayName || "",
           email: user?.email || "",
           studentType: studentType as "SCHOOL" | "COLLEGE",
           committeeChoice,
         });
-        localStorage.setItem("munCurrentStep", "payment");
-        setCurrentStep("payment");
+
+        if (isNitrStudent) {
+          setCurrentStep("complete");
+        } else {
+          localStorage.setItem("munCurrentStep", "payment");
+          setCurrentStep("payment");
+        }
       } catch (error) {
-        setError(error instanceof Error ? error.message : "Failed to register");
-        // Don't proceed to payment on error
+        const errorMessage = error instanceof Error ? error.message : "Failed to register";
+        setError(errorMessage);
+        toast.error("Registration failed", {
+          description: errorMessage,
+        });
         console.error("Individual registration failed:", error);
       } finally {
         setIsLoading(false);
@@ -242,7 +290,6 @@ export default function MunRegisterPage() {
   };
 
   const handlePaymentSuccess = () => {
-    // Clear localStorage on successful payment
     localStorage.removeItem("munTeamRegistration");
     localStorage.removeItem("munCurrentStep");
     localStorage.removeItem("munIsTeamRegistration");
@@ -272,7 +319,6 @@ export default function MunRegisterPage() {
             <AuthStep onGoogleSignIn={handleGoogleSignIn} isLoading={isLoading} error={error} />
           )}
 
-          {/* Individual registration or Team Leader step */}
           {(currentStep === "form" || currentStep === "form-leader") && user && (
             <div>
               {currentStep === "form-leader" && (
@@ -299,7 +345,6 @@ export default function MunRegisterPage() {
             </div>
           )}
 
-          {/* Teammate 1 step */}
           {currentStep === "form-teammate1" && user && teamData.leader && (
             <div>
               <div className="mb-6">
@@ -327,7 +372,6 @@ export default function MunRegisterPage() {
             </div>
           )}
 
-          {/* Teammate 2 step */}
           {currentStep === "form-teammate2" && user && teamData.leader && (
             <div>
               <div className="mb-6">

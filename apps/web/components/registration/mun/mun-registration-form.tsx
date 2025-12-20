@@ -4,7 +4,7 @@ import { type User } from "@repo/firebase-config";
 import { MunRegistrationSchema, type MunRegistration } from "@repo/shared-types";
 import { useApi } from "@repo/shared-utils";
 import CloudinaryUploader from "../../cloudinary-uploader";
-import { FormSection, InputField } from "../../ui";
+import { FormSection } from "../../ui";
 import {
   basicInfoFields,
   collegeInfoFields,
@@ -12,19 +12,21 @@ import {
   emergencyFields,
 } from "../../../config/register/mun";
 import { useFormState, renderFormFields, SubmitButton, ErrorDisplay } from "../../../utils/form";
+import { useState, useEffect } from "react";
 
 interface MunRegistrationFormProps {
   user: User;
   onComplete: (
     studentType: string,
     committeeChoice: string,
-    registrationData: MunRegistration
+    registrationData: MunRegistration,
+    isNitrStudent: boolean
   ) => void;
-  stepTitle?: string; // Optional title for multi-step flow
-  initialData?: Partial<MunRegistration>; // Prefilled data for teammates
-  hideCommitteeChoice?: boolean; // Hide committee choice for teammates
-  buttonText?: string; // Dynamic button text
-  clearUserDetails?: boolean; // Don't prefill name/email for teammates
+  stepTitle?: string;
+  initialData?: Partial<MunRegistration>;
+  hideCommitteeChoice?: boolean;
+  buttonText?: string;
+  clearUserDetails?: boolean;
 }
 
 export default function MunRegistrationForm({
@@ -36,20 +38,22 @@ export default function MunRegistrationForm({
   buttonText = "Continue to Payment",
   clearUserDetails = false,
 }: MunRegistrationFormProps) {
+  const [isNitrStudent, setIsNitrStudent] = useState(false);
+
   // Convert ISO date strings to Date objects for Zod validation
-  const processedInitialData = initialData
+  const processedInitialData: Partial<MunRegistration> = initialData
     ? {
         ...initialData,
         dateOfBirth:
           initialData.dateOfBirth &&
           typeof initialData.dateOfBirth === "string" &&
-          initialData.dateOfBirth.includes("T")
+          (initialData.dateOfBirth as string).includes("T")
             ? new Date(initialData.dateOfBirth)
             : initialData.dateOfBirth,
       }
     : {};
 
-  const { formData, errors, handleInputChange, validateForm, setErrors } =
+  const { formData, errors, handleInputChange, validateForm, setErrors, setFormData } =
     useFormState<MunRegistration>(
       {
         email: clearUserDetails ? "" : processedInitialData?.email || user.email || "",
@@ -59,10 +63,24 @@ export default function MunRegistrationForm({
         committeeChoice: processedInitialData?.committeeChoice || undefined,
         hasParticipatedBefore: processedInitialData?.hasParticipatedBefore || false,
         agreedToTerms: undefined as any,
-        ...processedInitialData, // Spread any additional prefilled data
+        ...processedInitialData,
       },
       MunRegistrationSchema
     );
+
+  // Auto-fill institute, university, city, and state when NITR toggle is enabled
+  useEffect(() => {
+    if (isNitrStudent) {
+      setFormData((prev) => ({
+        ...prev,
+        studentType: "COLLEGE",
+        institute: "National Institute of Technology Rourkela",
+        university: "National Institute of Technology Rourkela",
+        city: "Rourkela",
+        state: "Odisha",
+      }));
+    }
+  }, [isNitrStudent, setFormData]);
 
   const { loading: isSubmitting, error: submitError, execute: registerApi } = useApi({});
 
@@ -86,12 +104,31 @@ export default function MunRegistrationForm({
           : formData.dateOfBirth,
     } as MunRegistration;
 
-    // Call onComplete to pass data to parent (parent handles API call for team registration)
-    onComplete(formData.studentType!, formData.committeeChoice!, registrationData);
+    onComplete(formData.studentType!, formData.committeeChoice!, registrationData, isNitrStudent);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {!hideCommitteeChoice && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isNitrStudent}
+              onChange={(e) => setIsNitrStudent(e.target.checked)}
+              className="w-4 h-4 text-blue-600 focus:ring-blue-500 rounded"
+            />
+            <span className="ml-2 text-sm font-semibold text-blue-900">I am from NIT Rourkela</span>
+          </label>
+          {isNitrStudent && (
+            <p className="mt-2 text-xs text-blue-700">
+              Your college information will be auto-filled and you won't need to pay registration
+              fees.
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Basic Information */}
       <FormSection title="Basic Information">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -102,7 +139,21 @@ export default function MunRegistrationForm({
       {/* College/Institute Details */}
       <FormSection title="College / Institute Details">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {renderFormFields(collegeInfoFields, formData, errors, handleFieldChange)}
+          {renderFormFields(
+            collegeInfoFields.map((field) => ({
+              ...field,
+              disabled:
+                isNitrStudent &&
+                (field.name === "studentType" ||
+                  field.name === "institute" ||
+                  field.name === "university" ||
+                  field.name === "city" ||
+                  field.name === "state"),
+            })),
+            formData,
+            errors,
+            handleFieldChange
+          )}
 
           {/* ID Card Upload */}
           <div className="md:col-span-2">
@@ -193,7 +244,9 @@ export default function MunRegistrationForm({
         submitText={
           formData.committeeChoice === "MOOT_COURT" && !hideCommitteeChoice
             ? "Enter Teammate 1 Details"
-            : buttonText
+            : isNitrStudent
+              ? "Register"
+              : buttonText
         }
       />
     </form>

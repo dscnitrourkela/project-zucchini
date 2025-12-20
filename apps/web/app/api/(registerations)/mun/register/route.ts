@@ -7,9 +7,11 @@ export async function POST(request: NextRequest) {
   try {
     const auth = await requireAuth(request);
     const body = await request.json();
+    console.log(body);
 
     if (body.teamLeader && body.teammate1 && body.teammate2) {
       const teamData = body as TeamMunRegistration;
+      const { isNitrStudent = false } = body;
 
       if (teamData.teamLeader.dateOfBirth && typeof teamData.teamLeader.dateOfBirth === "string") {
         teamData.teamLeader.dateOfBirth = new Date(teamData.teamLeader.dateOfBirth);
@@ -27,18 +29,20 @@ export async function POST(request: NextRequest) {
         teamData.teammate2,
         auth.uid,
         null,
-        null
+        null,
+        isNitrStudent
       );
 
       return handleResponse(result, 201);
     } else {
       const individualData = body as MunRegistration;
+      const { isNitrStudent = false } = body;
 
       if (individualData.dateOfBirth && typeof individualData.dateOfBirth === "string") {
         individualData.dateOfBirth = new Date(individualData.dateOfBirth);
       }
 
-      const result = await registerMunUser(individualData, auth.uid);
+      const result = await registerMunUser(individualData, auth.uid, isNitrStudent);
       return handleResponse(result, 201);
     }
   } catch (error) {
