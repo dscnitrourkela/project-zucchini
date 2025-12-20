@@ -157,8 +157,7 @@ export default function MunRegisterPage() {
   const handleRegistrationComplete = async (
     studentType: string,
     committeeChoice: string,
-    registrationData: MunRegistration,
-    isNitrStudent: boolean = false
+    registrationData: MunRegistration
   ) => {
     if (committeeChoice === "MOOT_COURT") {
       setIsTeamRegistration(true);
@@ -188,12 +187,10 @@ export default function MunRegisterPage() {
           setIsLoading(true);
           setError(null);
 
-          console.log("[MUN Team Registration] isNitrStudent:", isNitrStudent);
-
           await registerTeam("mun/register", {
             method: "POST",
             body: JSON.stringify({
-              leader: updatedTeamData.leader,
+              teamLeader: updatedTeamData.leader,
               teammate1: updatedTeamData.teammate1,
               teammate2: updatedTeamData.teammate2,
               isNitrStudent,
@@ -214,14 +211,12 @@ export default function MunRegisterPage() {
           });
 
           if (isNitrStudent) {
-            console.log("[MUN] NITR student - skipping payment, going to complete");
             localStorage.removeItem("munTeamRegistration");
             localStorage.removeItem("munCurrentStep");
             localStorage.removeItem("munIsTeamRegistration");
             localStorage.removeItem("munIsNitrStudent");
             setCurrentStep("complete");
           } else {
-            console.log("[MUN] Regular student - proceeding to payment");
             localStorage.setItem("munCurrentStep", "payment");
             setCurrentStep("payment");
           }
@@ -239,23 +234,20 @@ export default function MunRegisterPage() {
     } else {
       setIsTeamRegistration(false);
       localStorage.setItem("munIsTeamRegistration", "false");
-
-      setIsNitrStudent(isNitrStudent);
       localStorage.setItem("munIsNitrStudent", String(isNitrStudent));
 
       try {
         setIsLoading(true);
         setError(null);
 
-        console.log("[MUN Individual Registration] isNitrStudent:", isNitrStudent);
-
-        await registerTeam("mun/register", {
+        const res = await registerTeam("mun/register", {
           method: "POST",
           body: JSON.stringify({
             ...registrationData,
             isNitrStudent,
           }),
         });
+        console.log(res);
 
         toast.success("Registration successful!", {
           description: isNitrStudent
@@ -341,6 +333,8 @@ export default function MunRegisterPage() {
                 onComplete={(studentType, committeeChoice, registrationData) =>
                   handleRegistrationComplete(studentType, committeeChoice, registrationData)
                 }
+                isNitrStudent={isNitrStudent}
+                setIsNitrStudent={setIsNitrStudent}
               />
             </div>
           )}
@@ -368,6 +362,8 @@ export default function MunRegisterPage() {
                 onComplete={(studentType, committeeChoice, registrationData) =>
                   handleRegistrationComplete(studentType, committeeChoice, registrationData)
                 }
+                isNitrStudent={isNitrStudent}
+                setIsNitrStudent={setIsNitrStudent}
               />
             </div>
           )}
@@ -395,6 +391,8 @@ export default function MunRegisterPage() {
                 onComplete={(studentType, committeeChoice, registrationData) =>
                   handleRegistrationComplete(studentType, committeeChoice, registrationData)
                 }
+                isNitrStudent={isNitrStudent}
+                setIsNitrStudent={setIsNitrStudent}
               />
             </div>
           )}

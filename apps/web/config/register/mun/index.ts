@@ -18,6 +18,7 @@ export const basicInfoFields: FieldConfig[] = [
     placeholder: "your.email@gmail.com",
     required: true,
     gridSpan: "half",
+    readonly: true,
   },
   {
     name: "phone",

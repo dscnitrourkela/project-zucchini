@@ -24,7 +24,11 @@ export const getUserByFirebaseUid = async (firebaseUid: string) => {
   };
 };
 
-export const registerUser = async (userData: Registration, firebaseUid: string) => {
+export const registerUser = async (
+  userData: Registration,
+  firebaseUid: string,
+  isNitrStudent: boolean = false
+) => {
   validateAndThrow(RegistrationSchema, userData, "User registration");
 
   const [newUser] = await db
@@ -42,6 +46,8 @@ export const registerUser = async (userData: Registration, firebaseUid: string) 
       referralCode: userData.referralCode || null,
       permission: userData.permission,
       undertaking: userData.undertaking,
+      isNitrStudent,
+      isVerified: isNitrStudent, // Auto-verify NITR students
     })
     .returning();
 

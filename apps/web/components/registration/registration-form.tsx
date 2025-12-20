@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 interface RegistrationFormProps {
   user: User;
-  onComplete: (userId: number, isNitrStudent: boolean) => void;
+  onComplete: (isNitrStudent: boolean) => void;
 }
 
 export default function RegistrationForm({ user, onComplete }: RegistrationFormProps) {
@@ -29,7 +29,6 @@ export default function RegistrationForm({ user, onComplete }: RegistrationFormP
       RegistrationSchema
     );
 
-  // Auto-fill institute and university when NITR toggle is enabled
   useEffect(() => {
     if (isNitrStudent) {
       setFormData((prev) => ({
@@ -48,14 +47,13 @@ export default function RegistrationForm({ user, onComplete }: RegistrationFormP
         return newErrors;
       });
     } else {
-      // Clear the dummy values when toggle is disabled
       setFormData((prev) => ({
         ...prev,
         permission: undefined as any,
         undertaking: undefined as any,
       }));
     }
-  }, [isNitrStudent, setFormData, setErrors]);
+  }, [isNitrStudent]);
 
   const {
     loading: isSubmitting,
@@ -68,7 +66,7 @@ export default function RegistrationForm({ user, onComplete }: RegistrationFormP
           ? "Your registration is complete. No payment required for NIT Rourkela students."
           : "Please proceed to payment to complete your registration.",
       });
-      onComplete(result.userId, isNitrStudent);
+      onComplete(isNitrStudent);
     },
     onError: (error) => {
       toast.error("Registration failed", {

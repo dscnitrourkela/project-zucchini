@@ -27,6 +27,8 @@ interface MunRegistrationFormProps {
   hideCommitteeChoice?: boolean;
   buttonText?: string;
   clearUserDetails?: boolean;
+  isNitrStudent: boolean;
+  setIsNitrStudent: (value: boolean) => void;
 }
 
 export default function MunRegistrationForm({
@@ -37,10 +39,9 @@ export default function MunRegistrationForm({
   hideCommitteeChoice = false,
   buttonText = "Continue to Payment",
   clearUserDetails = false,
+  isNitrStudent,
+  setIsNitrStudent,
 }: MunRegistrationFormProps) {
-  const [isNitrStudent, setIsNitrStudent] = useState(false);
-
-  // Convert ISO date strings to Date objects for Zod validation
   const processedInitialData: Partial<MunRegistration> = initialData
     ? {
         ...initialData,
@@ -68,7 +69,6 @@ export default function MunRegistrationForm({
       MunRegistrationSchema
     );
 
-  // Auto-fill institute, university, city, and state when NITR toggle is enabled
   useEffect(() => {
     if (isNitrStudent) {
       setFormData((prev) => ({
@@ -82,7 +82,7 @@ export default function MunRegistrationForm({
     }
   }, [isNitrStudent, setFormData]);
 
-  const { loading: isSubmitting, error: submitError, execute: registerApi } = useApi({});
+  const { loading: isSubmitting, error: submitError } = useApi({});
 
   const handleFieldChange = (field: keyof MunRegistration, value: any) => {
     handleInputChange(field, value);
@@ -105,6 +105,18 @@ export default function MunRegistrationForm({
     } as MunRegistration;
 
     onComplete(formData.studentType!, formData.committeeChoice!, registrationData, isNitrStudent);
+  };
+
+  const getSubmitButtonText = (): string => {
+    if (formData.committeeChoice === "MOOT_COURT" && !hideCommitteeChoice) {
+      return "Enter Teammate 1 Details";
+    }
+
+    if (buttonText === "Continue to Payment" && isNitrStudent) {
+      return "Register";
+    }
+
+    return buttonText;
   };
 
   return (
@@ -132,7 +144,15 @@ export default function MunRegistrationForm({
       {/* Basic Information */}
       <FormSection title="Basic Information">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {renderFormFields(basicInfoFields, formData, errors, handleFieldChange)}
+          {renderFormFields(
+            basicInfoFields.map((field) => ({
+              ...field,
+              readonly: field.name === "email" ? !clearUserDetails : field.readonly,
+            })),
+            formData,
+            errors,
+            handleFieldChange
+          )}
         </div>
       </FormSection>
 
@@ -241,13 +261,7 @@ export default function MunRegistrationForm({
       <SubmitButton
         isSubmitting={false}
         loadingText="Registering..."
-        submitText={
-          formData.committeeChoice === "MOOT_COURT" && !hideCommitteeChoice
-            ? "Enter Teammate 1 Details"
-            : isNitrStudent
-              ? "Register"
-              : buttonText
-        }
+        submitText={getSubmitButtonText()}
       />
     </form>
   );

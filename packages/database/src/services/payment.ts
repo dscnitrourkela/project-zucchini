@@ -107,7 +107,6 @@ export const getPaymentStatus = async (userId: number) => {
   };
 };
 
-// MUN Payment Functions
 export const updateMunPaymentStatus = async (
   munRegistrationId: number,
   amount: number,
@@ -127,18 +126,14 @@ export const updateMunPaymentStatus = async (
     throw new ApiError(400, "Razorpay details not found");
   }
 
-  // Get teamId (could be null for individual registrations)
   const teamId = munUser.teamId || munUser.firebaseUid || `individual-${munUser.id}`;
 
-  // Update verification status for the user (and all team members if part of a team)
   if (munUser.teamId) {
-    // Update all team members
     await db
       .update(munRegistrationsTable)
       .set({ isVerified: true })
       .where(eq(munRegistrationsTable.teamId, munUser.teamId));
   } else {
-    // Update only this user
     await db
       .update(munRegistrationsTable)
       .set({ isVerified: true })
@@ -159,10 +154,6 @@ export const updateMunPaymentStatus = async (
   if (!transaction) {
     throw new ApiError(404, "Transaction not found");
   }
-
-  // Note: We don't insert into razorpayPaymentsTable for MUN transactions
-  // because it has a foreign key to the regular transactions table.
-  // All payment details are already stored in munTransactionsTable.
 
   return {
     message: "MUN payment verified successfully",

@@ -91,7 +91,7 @@ export default function RegisterPage() {
     }
   };
 
-  const handleRegistrationComplete = (userId: number, isNitrStudent: boolean = false) => {
+  const handleRegistrationComplete = (isNitrStudent: boolean = false) => {
     setUserData({
       name: user?.displayName || "",
       email: user?.email || "",

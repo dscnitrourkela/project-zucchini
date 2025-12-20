@@ -20,6 +20,7 @@ export interface BaseInputFieldConfig {
   maxLength?: number;
   helperText?: string;
   gridSpan?: "full" | "half";
+  readonly?: boolean;
 }
 
 export interface BaseSelectFieldConfig {
@@ -30,6 +31,8 @@ export interface BaseSelectFieldConfig {
   options: { value: string; label: string }[];
   helperText?: string;
   gridSpan?: "full" | "half";
+  readonly?: boolean;
+  disabled?: boolean;
 }
 
 export interface BaseRadioFieldConfig {
@@ -38,6 +41,8 @@ export interface BaseRadioFieldConfig {
   required: boolean;
   options: { value: string; label: string }[];
   gridSpan?: "full" | "half";
+  readonly?: boolean;
+  disabled?: boolean;
 }
 
 export type FieldConfig = BaseInputFieldConfig | BaseSelectFieldConfig | BaseRadioFieldConfig;
@@ -183,6 +188,7 @@ export function renderFormField<T extends Record<string, any>>(
       maxLength={inputField.maxLength}
       helperText={inputField.helperText}
       className={gridClass}
+      readonly={inputField.readonly}
     />
   );
 }

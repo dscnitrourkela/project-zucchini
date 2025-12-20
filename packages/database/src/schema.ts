@@ -3,7 +3,6 @@ import { integer, pgTable, varchar, timestamp, boolean, text, pgEnum } from "dri
 export const genderEnum = pgEnum("gender", ["MALE", "FEMALE"]);
 export const paymentMethodEnum = pgEnum("payment_method", ["qr", "razorpay"]);
 
-// MUN-specific enums
 export const studentTypeEnum = pgEnum("student_type", ["SCHOOL", "COLLEGE"]);
 export const munCommitteeEnum = pgEnum("mun_committee", ["OVERNIGHT_CRISIS", "MOOT_COURT"]);
 export const bloodGroupEnum = pgEnum("blood_group", [
@@ -31,6 +30,7 @@ export const usersTable = pgTable("users", {
   referralCode: varchar({ length: 50 }),
   permission: text().notNull(),
   undertaking: text().notNull(),
+  isNitrStudent: boolean().notNull().default(false),
   isVerified: boolean().notNull().default(false),
   registeredAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
@@ -84,23 +84,19 @@ export type NewAdmin = typeof adminsTable.$inferInsert;
 export type RazorpayPayment = typeof razorpayPaymentsTable.$inferSelect;
 export type NewRazorpayPayment = typeof razorpayPaymentsTable.$inferInsert;
 
-// MUN Registration Tables
 export const munRegistrationsTable = pgTable("mun_registrations", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  firebaseUid: varchar({ length: 128 }).unique(), // Nullable for teammates until they log in
+  firebaseUid: varchar({ length: 128 }).unique(),
 
-  // Team Information (for MOOT Court teams)
-  teamId: varchar({ length: 36 }), // UUID to link team members
+  teamId: varchar({ length: 36 }),
   isTeamLeader: boolean().default(false),
 
-  // Basic Information
   name: varchar({ length: 255 }).notNull(),
   gender: genderEnum().notNull(),
   dateOfBirth: timestamp().notNull(),
   phone: varchar({ length: 10 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
 
-  // College/Institute Details
   studentType: studentTypeEnum().notNull(),
   institute: varchar({ length: 255 }).notNull(),
   university: varchar({ length: 255 }).notNull(),
@@ -109,23 +105,18 @@ export const munRegistrationsTable = pgTable("mun_registrations", {
   rollNumber: varchar({ length: 100 }).notNull(),
   idCard: text().notNull(),
 
-  // MUN Specific
   committeeChoice: munCommitteeEnum().notNull(),
   hasParticipatedBefore: boolean().notNull(),
 
-  // Emergency & Safety
   emergencyContactName: varchar({ length: 255 }).notNull(),
   emergencyContactPhone: varchar({ length: 10 }).notNull(),
   bloodGroup: bloodGroupEnum(),
 
-  // Declaration
   agreedToTerms: boolean().notNull(),
 
-  // Cross-Registration Tracking
-  // MUN registration counts as NITRUTSAV registration
   countsAsNitrutsavRegistration: boolean().notNull().default(true),
 
-  // Status
+  isNitrStudent: boolean().notNull().default(false),
   isVerified: boolean().notNull().default(false),
   registeredAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
@@ -133,9 +124,9 @@ export const munRegistrationsTable = pgTable("mun_registrations", {
 
 export const munTransactionsTable = pgTable("mun_transactions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  teamId: varchar({ length: 36 }).notNull().unique(), // Links to team (or individual if no team)
+  teamId: varchar({ length: 36 }).notNull().unique(),
   transactionId: varchar({ length: 255 }).notNull(),
-  amount: integer().notNull(), // Base: 1500 (college) or 1200 (school), tripled for MOOT Court teams
+  amount: integer().notNull(),
   paymentMethod: paymentMethodEnum(),
   paymentScreenshot: text(),
   isVerified: boolean().notNull().default(false),

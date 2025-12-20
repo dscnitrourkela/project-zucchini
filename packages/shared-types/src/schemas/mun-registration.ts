@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const PATTERNS = {
   NAME: /^[a-zA-Z\s]+$/,
-  EMAIL: /^[a-z0-9](?:\.?[a-z0-9]){5,}@g(?:oogle)?mail\.com$/,
+  EMAIL: /^[a-zA-Z0-9](?:\.?[a-zA-Z0-9])*@g(?:oogle)?mail\.com$/i,
   PHONE: /^\d{10}$/,
 };
 
@@ -38,7 +38,6 @@ export const MunRegistrationSchema = z
     state: z.string().min(1, MESSAGES.REQUIRED("State")),
     rollNumber: z.string().min(1, MESSAGES.REQUIRED("Roll number")),
     idCard: z.string().url(MESSAGES.REQUIRED("ID card upload")),
-
     // MUN Specific
     committeeChoice: z.enum(["OVERNIGHT_CRISIS", "MOOT_COURT"]),
     hasParticipatedBefore: z.boolean(),

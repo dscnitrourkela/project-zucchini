@@ -3,7 +3,7 @@ import RegistrationForm from "@/components/registration/registration-form";
 
 interface FormStepProps {
   user: User;
-  onComplete: (userId: number) => void;
+  onComplete: () => void;
 }
 
 export function FormStep({ user, onComplete }: FormStepProps) {

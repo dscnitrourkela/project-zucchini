@@ -24,9 +24,7 @@ export const getMunUserByFirebaseUid = async (firebaseUid: string) => {
   };
 };
 
-// Check if email is already registered
 const checkEmailRegistration = async (email: string): Promise<boolean> => {
-  // Check MUN registrations
   const [munReg] = await db
     .select()
     .from(munRegistrationsTable)
@@ -35,7 +33,6 @@ const checkEmailRegistration = async (email: string): Promise<boolean> => {
 
   if (munReg) return true;
 
-  // Check NITRUTSAV registrations
   const [nitrutsavReg] = await db
     .select()
     .from(usersTable)
@@ -45,7 +42,11 @@ const checkEmailRegistration = async (email: string): Promise<boolean> => {
   return !!nitrutsavReg;
 };
 
-export const registerMunUser = async (userData: MunRegistration, firebaseUid: string) => {
+export const registerMunUser = async (
+  userData: MunRegistration,
+  firebaseUid: string,
+  isNitrStudent: boolean = false
+) => {
   validateAndThrow(MunRegistrationSchema, userData, "MUN registration");
 
   if (await checkEmailRegistration(userData.email)) {
@@ -61,6 +62,8 @@ export const registerMunUser = async (userData: MunRegistration, firebaseUid: st
       teamId,
       isTeamLeader: false,
       ...userData,
+      isNitrStudent,
+      isVerified: isNitrStudent, // Auto-verify NITR students
     })
     .returning();
 
@@ -77,7 +80,8 @@ export const registerMunTeam = async (
   teammate2: MunRegistration,
   leaderFirebaseUid: string,
   teammate1FirebaseUid: string | null,
-  teammate2FirebaseUid: string | null
+  teammate2FirebaseUid: string | null,
+  isNitrStudent: boolean = false
 ) => {
   const emails = [teamLeader.email, teammate1.email, teammate2.email];
   for (const email of emails) {
@@ -96,18 +100,24 @@ export const registerMunTeam = async (
         teamId,
         isTeamLeader: true,
         ...teamLeader,
+        isNitrStudent,
+        isVerified: isNitrStudent, // Auto-verify NITR students
       },
       {
         firebaseUid: teammate1FirebaseUid,
         teamId,
         isTeamLeader: false,
         ...teammate1,
+        isNitrStudent,
+        isVerified: isNitrStudent,
       },
       {
         firebaseUid: teammate2FirebaseUid,
         teamId,
         isTeamLeader: false,
         ...teammate2,
+        isNitrStudent,
+        isVerified: isNitrStudent,
       },
     ])
     .returning();
@@ -162,10 +172,11 @@ export const checkCrossRegistration = async (firebaseUid: string) => {
       name: munUser.name,
       email: munUser.email,
       isPaymentVerified: munUser.isPaymentVerified,
+      isNitrStudent: munUser.isNitrStudent,
+      isVerified: munUser.isVerified,
     };
   }
 
-  // Check NITRUTSAV registration
   const nitrutsavUser = await getUserByFirebaseUid(firebaseUid);
   if (nitrutsavUser) {
     return {
@@ -176,6 +187,8 @@ export const checkCrossRegistration = async (firebaseUid: string) => {
       name: nitrutsavUser.name,
       email: nitrutsavUser.email,
       isPaymentVerified: nitrutsavUser.isPaymentVerified,
+      isNitrStudent: nitrutsavUser.isNitrStudent,
+      isVerified: nitrutsavUser.isVerified,
     };
   }
 
@@ -187,5 +200,7 @@ export const checkCrossRegistration = async (firebaseUid: string) => {
     name: null,
     email: null,
     isPaymentVerified: false,
+    isNitrStudent: false,
+    isVerified: false,
   };
 };
