@@ -2,7 +2,7 @@
 
 import { type User } from "@repo/firebase-config";
 import { RegistrationSchema, type Registration } from "@repo/shared-types";
-import { useApi } from "@repo/shared-utils/src/use-api";
+import { useApi } from "@repo/shared-utils";
 import CloudinaryUploader from "../cloudinary-uploader";
 import { registrationFields } from "@/config/register";
 import { useFormState, renderFormFields, SubmitButton, ErrorDisplay } from "@/utils/form";
@@ -44,8 +44,7 @@ export default function RegistrationForm({ user, onComplete }: RegistrationFormP
     await registerApi("register", {
       method: "POST",
       body: JSON.stringify({
-        ...formData,
-        firebaseUid: user.uid,
+        formData,
       }),
     });
   };

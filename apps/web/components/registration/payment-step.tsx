@@ -1,7 +1,6 @@
 import RegistrationPaymentButton from "@/components/registration/registration-payment-button";
 
 interface UserData {
-  userId: number;
   name: string;
   email: string;
 }
@@ -22,7 +21,9 @@ export function PaymentStep({
   return (
     <div className="py-6">
       <div className="text-center mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Registration Successful</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          Initial Registration Successful
+        </h2>
         <p className="text-gray-600 mb-6">Complete your payment to confirm your registration</p>
       </div>
 
@@ -34,7 +35,6 @@ export function PaymentStep({
 
       <div className="max-w-md mx-auto">
         <RegistrationPaymentButton
-          userId={userData.userId}
           userName={userData.name}
           userEmail={userData.email}
           onPaymentSuccess={onPaymentSuccess}

@@ -2,7 +2,7 @@
 
 import { type User } from "@repo/firebase-config";
 import { MunRegistrationSchema, type MunRegistration } from "@repo/shared-types";
-import { useApi } from "@repo/shared-utils/src/use-api";
+import { useApi } from "@repo/shared-utils";
 import CloudinaryUploader from "../../cloudinary-uploader";
 import { FormSection, InputField } from "../../ui";
 import {
@@ -17,7 +17,7 @@ import { useState } from "react";
 
 interface MunRegistrationFormProps {
   user: User;
-  onComplete: (userId: number, studentType: string, committeeChoice: string) => void;
+  onComplete: (studentType: string, committeeChoice: string) => void;
 }
 
 export default function MunRegistrationForm({ user, onComplete }: MunRegistrationFormProps) {
@@ -42,9 +42,9 @@ export default function MunRegistrationForm({ user, onComplete }: MunRegistratio
     loading: isSubmitting,
     error: submitError,
     execute: registerApi,
-  } = useApi<{ userId: number }>({
-    onSuccess: (response) => {
-      onComplete(response.userId, formData.studentType!, formData.committeeChoice!);
+  } = useApi({
+    onSuccess: () => {
+      onComplete(formData.studentType!, formData.committeeChoice!);
     },
   });
 
@@ -177,10 +177,7 @@ export default function MunRegistrationForm({ user, onComplete }: MunRegistratio
 
     await registerApi("mun/register", {
       method: "POST",
-      body: JSON.stringify({
-        ...formData,
-        firebaseUid: user.uid,
-      }),
+      body: JSON.stringify(formData),
     });
   };
 

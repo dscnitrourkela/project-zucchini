@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { signInWithGoogle, onAuthStateChanged, type User } from "@repo/firebase-config";
-import { useApi } from "@repo/shared-utils/src/use-api";
+import { useApi } from "@repo/shared-utils";
 import { LoadingState, ProgressBar, AuthStep, CompleteStep } from "@/components/registration";
 import { MunRegistrationForm, MunPaymentButton } from "@/components/registration/mun";
 
 type RegistrationStep = "auth" | "form" | "payment" | "complete";
 
 interface UserData {
-  userId: number;
   name: string;
   email: string;
   studentType?: "SCHOOL" | "COLLEGE";
@@ -41,13 +40,11 @@ export default function MunRegisterPage() {
       if (firebaseUser) {
         try {
           const result = await checkRegistration("mun/check-registration", {
-            method: "POST",
-            body: JSON.stringify({ firebaseUid: firebaseUser.uid }),
+            method: "GET",
           });
 
           if (result?.isRegistered) {
             setUserData({
-              userId: result.userId!,
               name: result.name!,
               email: result.email!,
             });
@@ -84,13 +81,8 @@ export default function MunRegisterPage() {
     }
   };
 
-  const handleRegistrationComplete = (
-    userId: number,
-    studentType: string,
-    committeeChoice: string
-  ) => {
+  const handleRegistrationComplete = (studentType: string, committeeChoice: string) => {
     setUserData({
-      userId,
       name: user?.displayName || "",
       email: user?.email || "",
       studentType: studentType as "SCHOOL" | "COLLEGE",
@@ -129,8 +121,8 @@ export default function MunRegisterPage() {
           {currentStep === "form" && user && (
             <MunRegistrationForm
               user={user}
-              onComplete={(userId, studentType, committeeChoice) =>
-                handleRegistrationComplete(userId, studentType, committeeChoice)
+              onComplete={(studentType, committeeChoice) =>
+                handleRegistrationComplete(studentType, committeeChoice)
               }
             />
           )}
@@ -149,7 +141,6 @@ export default function MunRegisterPage() {
               )}
 
               <MunPaymentButton
-                munRegistrationId={userData.userId}
                 userName={userData.name}
                 userEmail={userData.email}
                 studentType={userData.studentType || "COLLEGE"}

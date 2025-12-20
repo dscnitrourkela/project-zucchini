@@ -3,6 +3,7 @@ import { munRegistrationsTable, munTransactionsTable, usersTable } from "../sche
 import { eq } from "drizzle-orm";
 import { MunRegistrationSchema, validateAndThrow, type MunRegistration } from "@repo/shared-types";
 import { getUserByFirebaseUid } from "./user";
+import { munAmount } from "../../../../apps/web/config";
 
 export const getMunUserByFirebaseUid = async (firebaseUid: string) => {
   const [result] = await db
@@ -49,7 +50,7 @@ export const getMunRegistrationFee = (
   studentType: "SCHOOL" | "COLLEGE",
   committeeChoice: string
 ): number => {
-  const baseFee = studentType === "COLLEGE" ? 1500 : 1200;
+  const baseFee = studentType === "COLLEGE" ? munAmount.college : munAmount.school;
   // MOOT Court requires 3 people, so triple the cost
   return committeeChoice === "MOOT_COURT" ? baseFee * 3 : baseFee;
 };

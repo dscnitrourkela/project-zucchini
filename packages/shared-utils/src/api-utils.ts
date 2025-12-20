@@ -26,8 +26,6 @@ export function handleApiError(
   error: unknown,
   defaultMessage: string = "An error occurred"
 ): NextResponse<ApiErrorResponse> {
-  console.error("API Error:", error);
-
   if (isApiError(error)) {
     return NextResponse.json(
       {
@@ -51,6 +49,26 @@ export function handleApiError(
   }
 
   if (error instanceof Error) {
+    if (error.name === "AuthError") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.message,
+        },
+        { status: 401 }
+      );
+    }
+
+    if (error.name === "RateLimitError") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.message,
+        },
+        { status: 429 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
@@ -68,3 +86,6 @@ export function handleApiError(
     { status: 500 }
   );
 }
+
+export { requireAuth, applyRateLimit, AuthError, RateLimitError } from "./auth-middleware";
+export { RATE_LIMITS } from "./rate-limit";

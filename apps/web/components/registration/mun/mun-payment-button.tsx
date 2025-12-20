@@ -3,10 +3,10 @@
 import { useState } from "react";
 import Script from "next/script";
 import { Loader2 } from "lucide-react";
+import { useApi } from "@repo/shared-utils";
 import { munAmount } from "@/config";
 
 interface MunPaymentButtonProps {
-  munRegistrationId: number;
   userName: string;
   userEmail: string;
   studentType: "SCHOOL" | "COLLEGE";
@@ -16,7 +16,6 @@ interface MunPaymentButtonProps {
 }
 
 export default function MunPaymentButton({
-  munRegistrationId,
   userName,
   userEmail,
   studentType,
@@ -25,30 +24,24 @@ export default function MunPaymentButton({
   onPaymentFailure,
 }: MunPaymentButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const initiateOrderApi = useApi<{ orderId: string; amount: number }>();
+  const verifyOrderApi = useApi();
 
   const handlePayment = async () => {
     setIsLoading(true);
     try {
-      const orderResponse = await fetch("/api/mun/initiate-order", {
+      const orderResult = await initiateOrderApi.execute("mun/initiate-order", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          studentType,
-          committeeChoice,
-        }),
+        body: JSON.stringify({ studentType, committeeChoice }),
       });
 
-      const orderResult = await orderResponse.json();
-
-      if (!orderResult.success) {
-        onPaymentFailure?.(orderResult.error || "Failed to initiate payment");
+      if (!orderResult) {
+        onPaymentFailure?.(initiateOrderApi.error || "Failed to initiate payment");
         setIsLoading(false);
         return;
       }
 
-      const { orderId, amount: orderAmount } = orderResult.data;
+      const { orderId, amount: orderAmount } = orderResult;
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -57,35 +50,21 @@ export default function MunPaymentButton({
         name: "NITRUTSAV 2026 - MUN",
         description: `MUN Registration - ${committeeChoice === "MOOT_COURT" ? "MOOT Court (Team of 3)" : "Overnight Crisis"}`,
         order_id: orderId,
-
         handler: async function (response: any) {
-          try {
-            const paymentResponse = await fetch("/api/mun/verify-order", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                razorpay_order_id: orderId,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                munRegistrationId: munRegistrationId.toString(),
-                amount: orderAmount,
-              }),
-            });
+          const verifyResult = await verifyOrderApi.execute("mun/verify-order", {
+            method: "POST",
+            body: JSON.stringify({
+              razorpay_order_id: orderId,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              amount: orderAmount,
+            }),
+          });
 
-            const result = await paymentResponse.json();
-
-            if (result.success) {
-              onPaymentSuccess?.();
-            } else {
-              onPaymentFailure?.(result.error || "Payment verification failed");
-            }
-          } catch (error: any) {
-            const errorMessage =
-              error.response?.data?.error || "Payment verification failed. Please contact support.";
-            onPaymentFailure?.(errorMessage);
-            console.error(error);
+          if (verifyResult) {
+            onPaymentSuccess?.();
+          } else {
+            onPaymentFailure?.(verifyOrderApi.error || "Payment verification failed");
           }
         },
         prefill: {
@@ -128,10 +107,10 @@ export default function MunPaymentButton({
 
         <button
           onClick={handlePayment}
-          disabled={isLoading}
+          disabled={isLoading || initiateOrderApi.loading}
           className="w-full px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {isLoading ? (
+          {isLoading || initiateOrderApi.loading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
               Processing...

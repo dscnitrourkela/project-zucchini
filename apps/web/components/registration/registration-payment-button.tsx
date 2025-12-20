@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import Script from "next/script";
-import { generateOrderId } from "@/utils/gen-order-id";
+import { useApi } from "@repo/shared-utils";
 import { Loader2 } from "lucide-react";
 
 interface RegistrationPaymentButtonProps {
-  userId: number;
   userName: string;
   userEmail: string;
   onPaymentSuccess?: () => void;
@@ -14,51 +13,44 @@ interface RegistrationPaymentButtonProps {
 }
 
 export default function RegistrationPaymentButton({
-  userId,
   userName,
   userEmail,
   onPaymentSuccess,
   onPaymentFailure,
 }: RegistrationPaymentButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const initiateOrderApi = useApi<{ orderId: string }>();
+  const verifyOrderApi = useApi();
 
   const handlePayment = async () => {
     setIsLoading(true);
     try {
-      const orderId: string = await generateOrderId();
+      const orderResult = await initiateOrderApi.execute("intiate-order", { method: "POST" });
+
+      if (!orderResult?.orderId) {
+        onPaymentFailure?.(initiateOrderApi.error || "Failed to create order");
+        return;
+      }
+
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         name: "NITRUTSAV 2026",
         description: "Registration for NITRUTSAV 2026",
-        order_id: orderId,
-
+        order_id: orderResult.orderId,
         handler: async function (response: any) {
-          try {
-            const paymentResponse = await fetch("/api/verify-order", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                razorpay_order_id: orderId,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                userId: userId.toString(),
-              }),
-            });
+          const verifyResult = await verifyOrderApi.execute("verify-order", {
+            method: "POST",
+            body: JSON.stringify({
+              razorpay_order_id: orderResult.orderId,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
 
-            const result = await paymentResponse.json();
-
-            if (result.success) {
-              onPaymentSuccess?.();
-            } else {
-              onPaymentFailure?.(result.error || "Payment verification failed");
-            }
-          } catch (error: any) {
-            const errorMessage =
-              error.response?.data?.error || "Payment verification failed. Please contact support.";
-            onPaymentFailure?.(errorMessage);
-            console.error(error);
+          if (verifyResult) {
+            onPaymentSuccess?.();
+          } else {
+            onPaymentFailure?.(verifyOrderApi.error || "Payment verification failed");
           }
         },
         prefill: {
@@ -88,10 +80,10 @@ export default function RegistrationPaymentButton({
     <>
       <button
         onClick={handlePayment}
-        disabled={isLoading}
+        disabled={isLoading || initiateOrderApi.loading || verifyOrderApi.loading}
         className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
       >
-        {isLoading ? (
+        {isLoading || initiateOrderApi.loading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
             Processing...

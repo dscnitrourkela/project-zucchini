@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { signInWithGoogle, onAuthStateChanged, type User } from "@repo/firebase-config";
-import { useApi } from "@repo/shared-utils/src/use-api";
+import { useApi } from "@repo/shared-utils";
 import {
   LoadingState,
   ProgressBar,
@@ -15,7 +15,6 @@ import {
 type RegistrationStep = "auth" | "form" | "payment" | "complete";
 
 interface UserData {
-  userId: number;
   name: string;
   email: string;
 }
@@ -47,13 +46,11 @@ export default function RegisterPage() {
       if (firebaseUser) {
         try {
           const result = await checkRegistration("check-cross-registration", {
-            method: "POST",
-            body: JSON.stringify({ firebaseUid: firebaseUser.uid }),
+            method: "GET",
           });
 
           if (result?.isNitrutsavRegistered) {
             setUserData({
-              userId: result.userId!,
               name: result.name!,
               email: result.email!,
             });
@@ -90,9 +87,8 @@ export default function RegisterPage() {
     }
   };
 
-  const handleRegistrationComplete = (userId: number) => {
+  const handleRegistrationComplete = () => {
     setUserData({
-      userId,
       name: user?.displayName || "",
       email: user?.email || "",
     });

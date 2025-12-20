@@ -1,4 +1,7 @@
+"use client";
+
 import { useState } from "react";
+import { getAuth } from "firebase/auth";
 
 interface ApiResponse<T = any> {
   success: true;
@@ -23,6 +26,17 @@ interface UseApiReturn<T> {
   execute: (endpoint: string, options?: RequestInit) => Promise<T | null>;
 }
 
+async function getAuthToken(): Promise<string | null> {
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return null;
+    return user.getIdToken();
+  } catch {
+    return null;
+  }
+}
+
 export function useApi<T = any>(options?: UseApiOptions): UseApiReturn<T> {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<T | null>(null);
@@ -34,12 +48,20 @@ export function useApi<T = any>(options?: UseApiOptions): UseApiReturn<T> {
     setData(null);
 
     try {
+      const token = await getAuthToken();
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        ...(fetchOptions?.headers as Record<string, string>),
+      };
+
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`/api/${endpoint}`, {
         ...fetchOptions,
-        headers: {
-          "Content-Type": "application/json",
-          ...fetchOptions?.headers,
-        },
+        headers,
       });
 
       const result: ApiResponse<T> | ApiErrorResponse = await response.json();
