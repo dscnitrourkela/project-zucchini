@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ProtectedRoute } from "@/components/protected-route";
+import { LayoutWrapper } from "@/components/layout-wrapper";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard - Project Zucchini",
@@ -19,7 +20,9 @@ export default function RootLayout({
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <AuthProvider>
-            <ProtectedRoute>{children}</ProtectedRoute>
+            <ProtectedRoute>
+              <LayoutWrapper>{children}</LayoutWrapper>
+            </ProtectedRoute>
           </AuthProvider>
         </ThemeProvider>
       </body>

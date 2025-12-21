@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { handleResponse, handleApiError, requireAuth } from "@repo/shared-utils/server";
-import { isAdmin } from "@repo/database";
+import { getAdminByUid } from "@repo/database";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,9 +10,13 @@ export async function POST(req: NextRequest) {
       return handleApiError(new Error("Firebase UID not found in token"), "Invalid token");
     }
 
-    const result = await isAdmin(auth.uid);
-    return handleResponse({ amIAdmin: result });
+    const admin = await getAdminByUid(auth.uid);
+
+    return handleResponse({
+      isRegistered: !!admin,
+      isVerified: admin?.isVerified || false,
+    });
   } catch (error) {
-    return handleApiError(error, "Invalid request");
+    return handleApiError(error, "Check failed");
   }
 }

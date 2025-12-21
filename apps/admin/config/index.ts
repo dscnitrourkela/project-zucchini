@@ -1,6 +1,6 @@
 import { Payment } from "@/components/ui/data-table/columns";
 
-export const publicRoutes = ["/login"];
+export const publicRoutes = ["/login", "/register"];
 export const tempUserData: Payment[] = [
   {
     id: "1",

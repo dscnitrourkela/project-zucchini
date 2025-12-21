@@ -43,6 +43,13 @@
       "when": 1766237881392,
       "tag": "0005_brainy_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1766303423717,
+      "tag": "0006_stale_terrax",
+      "breakpoints": true
     }
   ]
 }
