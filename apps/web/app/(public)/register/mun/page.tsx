@@ -328,6 +328,19 @@ export default function MunRegisterPage() {
           </h1>
           <p className="text-gray-600">Model United Nations Registration</p>
         </div>
+
+        {/* Portfolio Matrix */}
+        <p className="text-center mb-6">
+          <a
+            href="https://docs.google.com/spreadsheets/d/1EfXSS9iMJWb6S9b9GvOlaqz4LFIpiGVEv2qZe44EG8Q/edit?usp=drivesdk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            View Portfolio Matrix
+          </a>
+        </p>
+
         <ProgressBar currentStep={currentStep} />
         <div className="bg-white border border-gray-200 rounded-lg p-8">
           {currentStep === "auth" && (
