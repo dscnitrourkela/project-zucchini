@@ -36,9 +36,14 @@ import { DataTablePagination } from "./datapagination";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  emptyMessage?: string;
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  emptyMessage = "No users found.",
+}: DataTableProps<TData, TValue>) {
   /* hooks first */
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -70,25 +75,6 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
   return (
     <div className="min-h-screen ">
       <div className="mx-auto max-w-7xl rounded-xl border border-zinc-800 bg-zinc-900 shadow-lg">
-        {/* ===== TOOLBAR ===== */}
-        <div className="flex items-center justify-between border-b border-zinc-800 p-4">
-          {emailColumn && (
-            <Input
-              placeholder="Filter emails..."
-              value={(emailColumn.getFilterValue() as string) ?? ""}
-              onChange={(e) => emailColumn.setFilterValue(e.target.value)}
-              className="
-                max-w-sm
-                bg-zinc-950
-                border-zinc-800
-                text-zinc-100
-                placeholder:text-zinc-500
-                focus-visible:ring-zinc-700
-              "
-            />
-          )}
-        </div>
-
         {/* ===== TABLE ===== */}
         <div className="overflow-hidden">
           <Table>
@@ -122,8 +108,13 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center text-zinc-200">
-                    No results.
+                  <TableCell colSpan={columns.length} className="h-32 text-center">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <span className="text-zinc-400 text-base">{emptyMessage}</span>
+                      <span className="text-zinc-600 text-sm">
+                        Try adjusting your search or filters
+                      </span>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}

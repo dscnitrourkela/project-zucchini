@@ -3,7 +3,6 @@ import axios from "axios";
 export async function generateOrderId() {
   try {
     const response = await axios.post("/api/intiate-order");
-    console.log("Order Response:", response.data);
 
     if (response.data.success) {
       return response.data.data.orderId;

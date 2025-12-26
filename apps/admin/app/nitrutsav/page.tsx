@@ -1,22 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Users, CheckCircle, Clock, School } from "lucide-react";
+import { useState, useCallback, useMemo } from "react";
+import { Users, CheckCircle, Clock, School, Search } from "lucide-react";
 import Header from "@/components/header";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import {
   nitrutsavColumns,
   NitrutsavRegistration,
 } from "@/components/ui/data-table/nitrutsav-columns";
-
-type Stats = {
-  total: number;
-  male: number;
-  female: number;
-  verified: number;
-  pending: number;
-  nitrStudents: number;
-};
+import { useNitrutsavRegistrations } from "@/lib/queries";
+import { useDebouncedSearch } from "@/lib/hooks/use-debounced-search";
+import { searchNitrutsavUsers } from "@/lib/api";
 
 function StatCard({
   title,
@@ -45,29 +39,39 @@ function StatCard({
 }
 
 export default function NitrutsavPage() {
-  const [data, setData] = useState<NitrutsavRegistration[]>([]);
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useNitrutsavRegistrations();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/registrations/nitrutsav?stats=true&pageSize=1000");
-        const json = await res.json();
-        if (json.success) {
-          setData(json.data.registrations);
-          setStats(json.data.stats);
-        }
-      } catch (error) {
-        console.error("Failed to fetch registrations:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
+  const registrations = useMemo(
+    () => (data?.registrations || []) as unknown as NitrutsavRegistration[],
+    [data?.registrations]
+  );
+  const stats = data?.stats;
+
+  const searchFields = useMemo(
+    () => ["email", "name", "phone"] as (keyof NitrutsavRegistration)[],
+    []
+  );
+
+  const handleDatabaseSearch = useCallback(async (query: string) => {
+    const results = await searchNitrutsavUsers(query);
+    return results as unknown as NitrutsavRegistration[];
   }, []);
 
-  if (loading) {
+  const {
+    results: searchResults,
+    isSearching,
+    isFromDatabase,
+  } = useDebouncedSearch({
+    data: registrations,
+    searchQuery,
+    searchFields,
+    debounceMs: 400,
+    minQueryLength: 2,
+    onDatabaseSearch: handleDatabaseSearch,
+  });
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
@@ -117,7 +121,26 @@ export default function NitrutsavPage() {
           </div>
         )}
 
-        <DataTable columns={nitrutsavColumns} data={data} />
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+            <input
+              type="text"
+              placeholder="Search by name, email, or phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-700"
+            />
+            {isSearching && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-zinc-400"></div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <DataTable columns={nitrutsavColumns} data={searchResults} />
       </main>
     </div>
   );

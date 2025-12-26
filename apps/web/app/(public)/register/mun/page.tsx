@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { signInWithGoogle, onAuthStateChanged, type User } from "@repo/firebase-config";
 import { useApi } from "@repo/shared-utils";
 import { LoadingState, ProgressBar, AuthStep, CompleteStep } from "@/components/registration";
@@ -150,7 +150,12 @@ export default function MunRegisterPage() {
     return () => unsubscribe();
   }, []);
 
-  const { execute: registerTeam } = useApi();
+  const lastRegisterError = useRef<string | null>(null);
+  const { execute: registerTeam } = useApi({
+    onError: (error) => {
+      lastRegisterError.current = error;
+    },
+  });
 
   const handleGoogleSignIn = async () => {
     setError(null);
@@ -194,78 +199,34 @@ export default function MunRegisterPage() {
         setTeamData(updatedTeamData);
         localStorage.setItem("munTeamRegistration", JSON.stringify(updatedTeamData));
 
-        try {
-          setIsLoading(true);
-          setError(null);
-
-          const allNitrStudents =
-            teamNitrStatus.leader && teamNitrStatus.teammate1 && teamNitrStatus.teammate2;
-
-          await registerTeam("mun/register", {
-            method: "POST",
-            body: JSON.stringify({
-              teamLeader: { ...updatedTeamData.leader, isNitrStudent: teamNitrStatus.leader },
-              teammate1: { ...updatedTeamData.teammate1, isNitrStudent: teamNitrStatus.teammate1 },
-              teammate2: { ...updatedTeamData.teammate2, isNitrStudent: teamNitrStatus.teammate2 },
-            }),
-          });
-
-          toast.success("Team registration successful!", {
-            description: allNitrStudents
-              ? "Your team registration is complete. No payment required for NIT Rourkela students."
-              : "Please proceed to payment to complete your team registration.",
-          });
-
-          setUserData({
-            name: user?.displayName || "",
-            email: user?.email || "",
-            studentType: studentType as "SCHOOL" | "COLLEGE",
-            committeeChoice,
-          });
-
-          if (allNitrStudents) {
-            localStorage.removeItem("munTeamRegistration");
-            localStorage.removeItem("munCurrentStep");
-            localStorage.removeItem("munIsTeamRegistration");
-            localStorage.removeItem("munTeamNitrStatus");
-            setCurrentStep("complete");
-          } else {
-            localStorage.setItem("munCurrentStep", "payment");
-            setCurrentStep("payment");
-          }
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : "Failed to register team";
-          setError(errorMessage);
-          toast.error("Team registration failed", {
-            description: errorMessage,
-          });
-          console.error("Team registration failed:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    } else {
-      setIsTeamRegistration(false);
-      localStorage.setItem("munIsTeamRegistration", "false");
-      localStorage.setItem("munTeamNitrStatus", JSON.stringify(teamNitrStatus));
-
-      try {
         setIsLoading(true);
         setError(null);
 
-        const res = await registerTeam("mun/register", {
+        const allNitrStudents =
+          teamNitrStatus.leader && teamNitrStatus.teammate1 && teamNitrStatus.teammate2;
+
+        const result = await registerTeam("mun/register", {
           method: "POST",
           body: JSON.stringify({
-            ...registrationData,
-            isNitrStudent: teamNitrStatus.leader,
+            teamLeader: { ...updatedTeamData.leader, isNitrStudent: teamNitrStatus.leader },
+            teammate1: { ...updatedTeamData.teammate1, isNitrStudent: teamNitrStatus.teammate1 },
+            teammate2: { ...updatedTeamData.teammate2, isNitrStudent: teamNitrStatus.teammate2 },
           }),
         });
-        console.log(res);
 
-        toast.success("Registration successful!", {
-          description: teamNitrStatus.leader
-            ? "Your registration is complete. No payment required for NIT Rourkela students."
-            : "Please proceed to payment to complete your registration.",
+        setIsLoading(false);
+
+        if (result === null) {
+          toast.error("Team registration failed", {
+            description: lastRegisterError.current || "Failed to register team. Please try again.",
+          });
+          return;
+        }
+
+        toast.success("Team registration successful!", {
+          description: allNitrStudents
+            ? "Your team registration is complete. No payment required for NIT Rourkela students."
+            : "Please proceed to payment to complete your team registration.",
         });
 
         setUserData({
@@ -275,21 +236,60 @@ export default function MunRegisterPage() {
           committeeChoice,
         });
 
-        if (teamNitrStatus.leader) {
+        if (allNitrStudents) {
+          localStorage.removeItem("munTeamRegistration");
+          localStorage.removeItem("munCurrentStep");
+          localStorage.removeItem("munIsTeamRegistration");
+          localStorage.removeItem("munTeamNitrStatus");
           setCurrentStep("complete");
         } else {
           localStorage.setItem("munCurrentStep", "payment");
           setCurrentStep("payment");
         }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to register";
-        setError(errorMessage);
+      }
+    } else {
+      setIsTeamRegistration(false);
+      localStorage.setItem("munIsTeamRegistration", "false");
+      localStorage.setItem("munTeamNitrStatus", JSON.stringify(teamNitrStatus));
+
+      setIsLoading(true);
+      setError(null);
+
+      const res = await registerTeam("mun/register", {
+        method: "POST",
+        body: JSON.stringify({
+          ...registrationData,
+          isNitrStudent: teamNitrStatus.leader,
+        }),
+      });
+
+      setIsLoading(false);
+
+      if (res === null) {
         toast.error("Registration failed", {
-          description: errorMessage,
+          description: lastRegisterError.current || "Failed to register. Please try again.",
         });
-        console.error("Individual registration failed:", error);
-      } finally {
-        setIsLoading(false);
+        return;
+      }
+
+      toast.success("Registration successful!", {
+        description: teamNitrStatus.leader
+          ? "Your registration is complete. No payment required for NIT Rourkela students."
+          : "Please proceed to payment to complete your registration.",
+      });
+
+      setUserData({
+        name: user?.displayName || "",
+        email: user?.email || "",
+        studentType: studentType as "SCHOOL" | "COLLEGE",
+        committeeChoice,
+      });
+
+      if (teamNitrStatus.leader) {
+        setCurrentStep("complete");
+      } else {
+        localStorage.setItem("munCurrentStep", "payment");
+        setCurrentStep("payment");
       }
     }
   };
@@ -328,6 +328,19 @@ export default function MunRegisterPage() {
           </h1>
           <p className="text-gray-600">Model United Nations Registration</p>
         </div>
+
+        {/* Portfolio Matrix */}
+        <p className="text-center mb-6">
+          <a
+            href="https://docs.google.com/spreadsheets/d/1EfXSS9iMJWb6S9b9GvOlaqz4LFIpiGVEv2qZe44EG8Q/edit?usp=drivesdk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            View Portfolio Matrix
+          </a>
+        </p>
+
         <ProgressBar currentStep={currentStep} />
         <div className="bg-white border border-gray-200 rounded-lg p-8">
           {currentStep === "auth" && (
@@ -445,7 +458,7 @@ export default function MunRegisterPage() {
                 userName={userData.name}
                 userEmail={userData.email}
                 studentType={userData.studentType || "COLLEGE"}
-                committeeChoice={userData.committeeChoice || "OVERNIGHT_CRISIS"}
+                committeeChoice={userData.committeeChoice || "UNHRC"}
                 onPaymentSuccess={handlePaymentSuccess}
                 onPaymentFailure={handlePaymentFailure}
                 nonNitrCount={

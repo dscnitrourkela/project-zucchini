@@ -2,7 +2,7 @@
 
 import { db } from "../index";
 import { usersTable, transactionsTable } from "../schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, ilike, or } from "drizzle-orm";
 import { type Registration, RegistrationSchema, validateAndThrow } from "@repo/shared-types";
 
 export const getUserByFirebaseUid = async (firebaseUid: string) => {
@@ -125,4 +125,40 @@ export const getNitrutsavStatistics = async () => {
     pending,
     nitrStudents,
   };
+};
+
+export const searchNitrutsavUsers = async (query: string, limit: number = 20) => {
+  const searchPattern = `%${query}%`;
+
+  const users = await db
+    .select({
+      id: usersTable.id,
+      firebaseUid: usersTable.firebaseUid,
+      name: usersTable.name,
+      email: usersTable.email,
+      phone: usersTable.phone,
+      gender: usersTable.gender,
+      institute: usersTable.institute,
+      university: usersTable.university,
+      rollNumber: usersTable.rollNumber,
+      idCard: usersTable.idCard,
+      referralCode: usersTable.referralCode,
+      isNitrStudent: usersTable.isNitrStudent,
+      isVerified: usersTable.isVerified,
+      registeredAt: usersTable.registeredAt,
+      transaction: transactionsTable,
+    })
+    .from(usersTable)
+    .leftJoin(transactionsTable, eq(usersTable.id, transactionsTable.userId))
+    .where(
+      or(
+        ilike(usersTable.email, searchPattern),
+        ilike(usersTable.name, searchPattern),
+        ilike(usersTable.phone, searchPattern)
+      )
+    )
+    .orderBy(desc(usersTable.registeredAt))
+    .limit(limit);
+
+  return users;
 };

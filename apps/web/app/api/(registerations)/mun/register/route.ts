@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     const auth = await requireAuth(request);
     const body = await request.json();
-    console.log(body);
 
     if (body.teamLeader && body.teammate1 && body.teammate2) {
       const teamData = body as TeamMunRegistration;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   Users,
   CheckCircle,
@@ -10,44 +10,17 @@ import {
   ChevronDown,
   ChevronRight,
   User,
+  Search,
+  Table,
+  LayoutGrid,
 } from "lucide-react";
 import Header from "@/components/header";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { munColumns, MunRegistration } from "@/components/ui/data-table/mun-columns";
-
-type Stats = {
-  total: number;
-  male: number;
-  female: number;
-  verified: number;
-  pending: number;
-  teams: number;
-};
-
-type TeamMember = {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  gender: string;
-  institute: string;
-  city: string;
-  state: string;
-  isTeamLeader: boolean;
-  studentType: string;
-  committeeChoice: string;
-  isNitrStudent: boolean;
-  registeredAt: string;
-};
-
-type Team = {
-  teamId: string;
-  committeeChoice: string;
-  studentType: string;
-  isPaymentVerified: boolean;
-  paymentAmount: number;
-  members: TeamMember[];
-};
+import { useMunTeams, useMunRegistrations } from "@/lib/queries";
+import { useDebouncedSearch } from "@/lib/hooks/use-debounced-search";
+import { searchMunUsers } from "@/lib/api";
+import type { Team, TeamMember } from "@/lib/api";
 
 function StatCard({
   title,
@@ -176,6 +149,16 @@ function TeamCard({
 }
 
 function IndividualCard({ member }: { member: TeamMember }) {
+  const committeeLabels: Record<string, string> = {
+    UNHRC: "UNHRC",
+    UNGA_DISEC: "UNGA DISEC",
+    ECOSOC: "ECOSOC",
+    AIPPM: "AIPPM",
+    IP_PHOTOGRAPHER: "IP - Photo",
+    IP_JOURNALIST: "IP - Journal",
+    UNSC_OVERNIGHT_CRISIS: "UNSC Crisis",
+    AIPPM_OVERNIGHT_CRISIS: "AIPPM Crisis",
+  };
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
       <div className="flex items-start justify-between">
@@ -187,7 +170,7 @@ function IndividualCard({ member }: { member: TeamMember }) {
             <div className="flex items-center gap-2">
               <span className="font-medium text-white">{member.name}</span>
               <span className="text-xs font-medium px-2 py-0.5 rounded bg-orange-500/20 text-orange-400">
-                Crisis
+                {committeeLabels[member.committeeChoice] || member.committeeChoice}
               </span>
               <span
                 className={`text-xs font-medium px-2 py-0.5 rounded ${
@@ -223,48 +206,86 @@ function IndividualCard({ member }: { member: TeamMember }) {
   );
 }
 
+function ViewToggle({
+  view,
+  onViewChange,
+}: {
+  view: "cards" | "table";
+  onViewChange: (view: "cards" | "table") => void;
+}) {
+  return (
+    <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1">
+      <button
+        onClick={() => onViewChange("cards")}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+          view === "cards" ? "bg-zinc-700 text-white" : "text-zinc-400 hover:text-zinc-200"
+        }`}
+      >
+        <LayoutGrid className="h-4 w-4" />
+        Cards
+      </button>
+      <button
+        onClick={() => onViewChange("table")}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+          view === "table" ? "bg-zinc-700 text-white" : "text-zinc-400 hover:text-zinc-200"
+        }`}
+      >
+        <Table className="h-4 w-4" />
+        Table
+      </button>
+    </div>
+  );
+}
+
 export default function MunPage() {
-  const [data, setData] = useState<MunRegistration[]>([]);
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [individuals, setIndividuals] = useState<TeamMember[]>([]);
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: teamsData, isLoading: teamsLoading } = useMunTeams();
+  const { data: registrationsData, isLoading: registrationsLoading } = useMunRegistrations();
   const [expandedTeams, setExpandedTeams] = useState<Set<string>>(new Set());
+  const [view, setView] = useState<"cards" | "table">("table");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        // Fetch team data
-        const teamRes = await fetch("/api/registrations/mun?stats=true&groupByTeam=true");
-        const teamJson = await teamRes.json();
-        if (teamJson.success) {
-          // Filter only Moot Court teams (teams with actual teamId)
-          const mootCourtTeams = teamJson.data.teams.filter(
-            (t: Team) => t.teamId && t.committeeChoice === "MOOT_COURT"
-          );
-          setTeams(mootCourtTeams);
-          setStats(teamJson.data.stats);
-        }
+  const loading = teamsLoading || registrationsLoading;
 
-        // Fetch all registrations to get individuals
-        const allRes = await fetch("/api/registrations/mun?stats=true&pageSize=1000");
-        const allJson = await allRes.json();
-        if (allJson.success) {
-          // Filter Overnight Crisis individuals (no teamId or null)
-          const crisisIndividuals = allJson.data.registrations.filter(
-            (r: any) => !r.teamId || r.committeeChoice === "OVERNIGHT_CRISIS"
-          );
-          setIndividuals(crisisIndividuals);
-          setData(allJson.data.registrations);
-        }
-      } catch (error) {
-        console.error("Failed to fetch registrations:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
+  const allRegistrations = useMemo(
+    () => (registrationsData?.registrations || []) as unknown as MunRegistration[],
+    [registrationsData?.registrations]
+  );
+
+  const searchFields = useMemo(() => ["email", "name", "phone"] as (keyof MunRegistration)[], []);
+
+  const handleDatabaseSearch = useCallback(async (query: string) => {
+    const results = await searchMunUsers(query);
+    return results as unknown as MunRegistration[];
   }, []);
+
+  const {
+    results: searchResults,
+    isSearching,
+    isFromDatabase,
+  } = useDebouncedSearch({
+    data: allRegistrations,
+    searchQuery,
+    searchFields,
+    debounceMs: 400,
+    minQueryLength: 2,
+    onDatabaseSearch: handleDatabaseSearch,
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      </div>
+    );
+  }
+
+  const stats = teamsData?.stats;
+  const teams = (teamsData?.teams || []).filter(
+    (t: Team) => t.teamId && t.committeeChoice === "MOOT_COURT"
+  );
+  const individuals = (registrationsData?.registrations || []).filter(
+    (r: TeamMember) => !r.isTeamLeader || r.committeeChoice !== "MOOT_COURT"
+  );
 
   const toggleTeam = (teamId: string) => {
     setExpandedTeams((prev) => {
@@ -277,14 +298,6 @@ export default function MunPage() {
       return next;
     });
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen">
@@ -314,7 +327,7 @@ export default function MunPage() {
               color="bg-purple-500/20 text-purple-400"
             />
             <StatCard
-              title="Crisis Individuals"
+              title="Solo Registrations"
               value={individuals.length}
               icon={User}
               color="bg-orange-500/20 text-orange-400"
@@ -328,46 +341,75 @@ export default function MunPage() {
           </div>
         )}
 
-        {/* Moot Court Teams Section */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-purple-500"></span>
-            Moot Court Teams
-          </h2>
-          <div className="space-y-4">
-            {teams.map((team) => (
-              <TeamCard
-                key={team.teamId}
-                team={team}
-                isExpanded={expandedTeams.has(team.teamId)}
-                onToggle={() => toggleTeam(team.teamId)}
+        {/* View Toggle and Search */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <ViewToggle view={view} onViewChange={setView} />
+
+          {view === "table" && (
+            <div className="relative max-w-md w-full sm:w-auto">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+              <input
+                type="text"
+                placeholder="Search by name, email, or phone..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-700"
               />
-            ))}
-            {teams.length === 0 && (
-              <div className="text-center py-8 text-zinc-500 border border-dashed border-zinc-800 rounded-xl">
-                No Moot Court teams registered yet.
-              </div>
-            )}
-          </div>
+              {isSearching && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-zinc-400"></div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Overnight Crisis Individuals Section */}
-        <div>
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-orange-500"></span>
-            Overnight Crisis (Individual)
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {individuals.map((member) => (
-              <IndividualCard key={member.id} member={member} />
-            ))}
-            {individuals.length === 0 && (
-              <div className="text-center py-8 text-zinc-500 border border-dashed border-zinc-800 rounded-xl col-span-2">
-                No Overnight Crisis registrations yet.
+        {view === "table" ? (
+          <DataTable columns={munColumns} data={searchResults} />
+        ) : (
+          <>
+            {/* Moot Court Teams Section */}
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-purple-500"></span>
+                Moot Court Teams
+              </h2>
+              <div className="space-y-4">
+                {teams.map((team) => (
+                  <TeamCard
+                    key={team.teamId}
+                    team={team}
+                    isExpanded={expandedTeams.has(team.teamId)}
+                    onToggle={() => toggleTeam(team.teamId)}
+                  />
+                ))}
+                {teams.length === 0 && (
+                  <div className="text-center py-8 text-zinc-500 border border-dashed border-zinc-800 rounded-xl">
+                    No Moot Court teams registered yet.
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+
+            {/* Solo Registrations Section */}
+            <div>
+              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-orange-500"></span>
+                Solo Registrations
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {individuals.map((member) => (
+                  <IndividualCard key={member.id} member={member} />
+                ))}
+                {individuals.length === 0 && (
+                  <div className="text-center py-8 text-zinc-500 border border-dashed border-zinc-800 rounded-xl col-span-2">
+                    No solo registrations yet.
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

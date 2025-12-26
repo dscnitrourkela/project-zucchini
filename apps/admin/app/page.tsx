@@ -1,26 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Users, Gavel, TrendingUp, ArrowRight, CheckCircle, Clock } from "lucide-react";
-
-type NitrutsavStats = {
-  total: number;
-  male: number;
-  female: number;
-  verified: number;
-  pending: number;
-  nitrStudents: number;
-};
-
-type MunStats = {
-  total: number;
-  male: number;
-  female: number;
-  verified: number;
-  pending: number;
-  teams: number;
-};
+import { useNitrutsavStats, useMunStats } from "@/lib/queries";
 
 function DashboardCard({
   title,
@@ -65,34 +47,10 @@ function DashboardCard({
 }
 
 export default function AdminPage() {
-  const [nitrutsavStats, setNitrutsavStats] = useState<NitrutsavStats | null>(null);
-  const [munStats, setMunStats] = useState<MunStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: nitrutsavStats, isLoading: nitrutsavLoading } = useNitrutsavStats();
+  const { data: munStats, isLoading: munLoading } = useMunStats();
 
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const [nitrutsavRes, munRes] = await Promise.all([
-          fetch("/api/registrations/nitrutsav?stats=true&pageSize=1"),
-          fetch("/api/registrations/mun?stats=true&pageSize=1"),
-        ]);
-
-        const [nitrutsavData, munData] = await Promise.all([nitrutsavRes.json(), munRes.json()]);
-
-        if (nitrutsavData.success) {
-          setNitrutsavStats(nitrutsavData.data.stats);
-        }
-        if (munData.success) {
-          setMunStats(munData.data.stats);
-        }
-      } catch (error) {
-        console.error("Failed to fetch stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStats();
-  }, []);
+  const loading = nitrutsavLoading || munLoading;
 
   if (loading) {
     return (

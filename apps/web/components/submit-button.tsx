@@ -29,7 +29,6 @@ export default function SubmitButton() {
 
             if (paymentResponse.data.success) {
               alert("Payment Successful!");
-              console.log(paymentResponse.data.data);
             } else {
               alert(paymentResponse.data.error || "Payment verification failed");
             }

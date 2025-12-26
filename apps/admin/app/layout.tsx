@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ProtectedRoute } from "@/components/protected-route";
 import { LayoutWrapper } from "@/components/layout-wrapper";
+import { QueryProvider } from "@/components/query-provider";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard - Project Zucchini",
@@ -19,11 +20,13 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <AuthProvider>
-            <ProtectedRoute>
-              <LayoutWrapper>{children}</LayoutWrapper>
-            </ProtectedRoute>
-          </AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <ProtectedRoute>
+                <LayoutWrapper>{children}</LayoutWrapper>
+              </ProtectedRoute>
+            </AuthProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

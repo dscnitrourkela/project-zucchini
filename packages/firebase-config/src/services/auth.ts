@@ -15,7 +15,6 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
 
-    console.log("User signed in successfully:", result.user.email);
     return result;
   } catch (error) {
     handleError(error, "Google sign-in failed");
@@ -25,7 +24,6 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
 export const signOut = async (): Promise<void> => {
   try {
     await firebaseSignOut(auth);
-    console.log("User signed out successfully");
   } catch (error) {
     handleError(error, "Sign out failed");
   }
