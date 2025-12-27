@@ -1,5 +1,7 @@
 {
-  "files": ["README.md"],
+  "files": [
+    "README.md"
+  ],
   "imageSize": 100,
   "commit": false,
   "commitType": "docs",
@@ -10,7 +12,19 @@
       "name": "Ayush",
       "avatar_url": "https://avatars.githubusercontent.com/u/135319056?v=4",
       "profile": "https://ayussh.vercel.app/",
-      "contributions": ["code", "doc"]
+      "contributions": [
+        "code",
+        "doc"
+      ]
+    },
+    {
+      "login": "srikant3691",
+      "name": "Srikant Panigrahy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/180011583?v=4",
+      "profile": "https://github.com/srikant3691",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
