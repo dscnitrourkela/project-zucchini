@@ -49,7 +49,6 @@ export function useApi<T = any>(options?: UseApiOptions): UseApiReturn<T> {
 
     try {
       const token = await getAuthToken();
-
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
         ...(fetchOptions?.headers as Record<string, string>),
