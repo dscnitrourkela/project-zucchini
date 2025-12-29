@@ -102,10 +102,10 @@ export default function CloudinaryUploader({
     for (const file of filesToUpload) {
       try {
         // Validate file type
-        const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-        if (!ALLOWED_TYPES.includes(file.type)) {
-          throw new Error("Only JPEG, PNG, WebP images and PDF files are allowed");
-        }
+        // const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+        // if (!ALLOWED_TYPES.includes(file.type)) {
+        //   throw new Error("Only JPEG, PNG, WebP images and PDF files are allowed");
+        // }
 
         // Validate file size (5MB max)
         const MAX_SIZE = 5 * 1024 * 1024;

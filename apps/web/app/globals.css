@@ -4,9 +4,14 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bg-image: url("https://res.cloudinary.com/drf3eatfm/image/upload/v1767005164/nitrutsav-2026/gsnj4mjupteth0nktnla.jpg");
+}
+
 @theme inline {
   --font-baloo: var(--font-baloo);
   --font-inria: var(--font-inria);
+  --font-berry: var(--font-berry);
 }
 
 /* Hero animations */
@@ -115,4 +120,10 @@
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+.bg-grad {
+  background:
+    radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.39) 100%),
+    var(--bg-image) lightgray 50% / cover no-repeat;
 }
