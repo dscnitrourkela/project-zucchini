@@ -19,7 +19,7 @@ export default function TermsAndConditionsPage() {
 
       <section className="py-12 px-6">
         <div className="max-w-4xl mx-auto prose prose-slate">
-          <H2 className="text-slate-900 mb-6">Welcome to Nitrutsav 2026!</H2>
+          <H2 className="text-slate-900 mb-6 font-baloo">Welcome to Nitrutsav 2026!</H2>
           <P className="text-slate-700 leading-relaxed mb-6">
             The website linked gives you the outline of our protocols. If you agree to the set of
             terms and conditions, you are welcomed as an entrant and will be redirected to proceed

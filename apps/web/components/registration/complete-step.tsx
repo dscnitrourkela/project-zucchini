@@ -1,20 +1,22 @@
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Home } from "lucide-react";
+import Link from "next/link";
 
 export function CompleteStep() {
   return (
-    <div className="text-center py-8">
+    <div className="text-center py-8 max-w-md mx-auto">
       <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to NITRUTSAV 2026!</h2>
-      <p className="text-gray-600 mb-8">
+      <h2 className="text-2xl font-bold text-white mb-2 font-baloo">Welcome to NITRUTSAV 2026!</h2>
+      <p className="text-white/90 mb-8 font-inria">
         Your registration and payment have been successfully completed
       </p>
 
-      <button
-        onClick={() => (window.location.href = "/")}
-        className="px-6 py-3 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
+      <Link
+        href={"/"}
+        className="gradient-border-btn w-full mt-6 py-3 px-6 text-white font-semibold hover:bg-white/30 transition-all duration-200 flex items-center justify-center gap-2 font-inria"
       >
-        Back to Home
-      </button>
+        <Home className="w-5 h-5" />
+        Go to Home
+      </Link>
     </div>
   );
 }

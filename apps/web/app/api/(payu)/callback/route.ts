@@ -21,13 +21,13 @@ export async function POST(req: NextRequest) {
 
     const salt = process.env.PAYU_SALT;
     if (!salt) {
-      return NextResponse.redirect(new URL("/failure?error=config", req.url));
+      return NextResponse.redirect(new URL("/failure?error=config", req.url), 303);
     }
 
     const isHashValid = verifyPayuHash(params, salt);
 
     if (!isHashValid) {
-      return NextResponse.redirect(new URL("/failure?error=hash", req.url));
+      return NextResponse.redirect(new URL("/failure?error=hash", req.url), 303);
     }
 
     const status = params.status?.toLowerCase();
@@ -35,18 +35,20 @@ export async function POST(req: NextRequest) {
 
     if (status === "success") {
       return NextResponse.redirect(
-        new URL(`/success?txnid=${params.txnid}&mihpayid=${params.mihpayid}`, origin)
+        new URL(`/success?txnid=${params.txnid}&mihpayid=${params.mihpayid}`, origin),
+        303
       );
     } else {
       return NextResponse.redirect(
         new URL(
           `/failure?txnid=${params.txnid}&status=${status}&reason=${encodeURIComponent(params.field9 || "Payment failed")}`,
           origin
-        )
+        ),
+        303
       );
     }
   } catch (error) {
-    console.error("PayU Callback Error:", error);
-    return NextResponse.redirect(new URL("/failure?error=exception", req.url));
+    console.error("PayU Callback Error (POST):", error);
+    return NextResponse.redirect(new URL("/failure?error=exception", req.url), 303);
   }
 }

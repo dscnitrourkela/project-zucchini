@@ -4,8 +4,9 @@ import { useApi } from "@repo/shared-utils";
 import { toast } from "sonner";
 import { Suspense, useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { useSearchParams } from "next/navigation";
-import { Check, X } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Check, X, Home } from "lucide-react";
+import Link from "next/link";
 
 interface TransactionDetails {
   isVerified: boolean;
@@ -19,6 +20,7 @@ function SuccessContent() {
   const [paymentStatus, setPaymentStatus] = useState<"success" | "failure" | "pending">("pending");
   const [transactionDetails, setTransactionDetails] = useState<TransactionDetails | null>(null);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
 
   const { execute, loading: isLoading } = useApi({
@@ -56,46 +58,67 @@ function SuccessContent() {
     };
 
     verifyPayment();
-  }, [user]);
+  }, [user, searchParams]);
 
   if (authLoading || isLoading || paymentStatus === "pending") return <LoadingState />;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+    <div className="min-h-screen reg-bg-image flex items-center justify-center p-4">
+      <div className="form-container mt-20 p-8 max-w-md w-full text-center">
         {paymentStatus === "success" ? (
           <>
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-green-500" />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-white/20 backdrop-blur-sm">
+              <Check className="w-10 h-10 text-green-400" strokeWidth={3} />
             </div>
-            <h1 className="text-2xl font-bold text-green-600 mb-2">Payment Successful!</h1>
-            <p className="text-gray-600 mb-4">Your payment has been verified.</p>
+            <h1 className="text-3xl font-bold text-white mb-3 font-baloo">Payment Successful!</h1>
+            <p className="text-white/90 mb-6 text-lg">
+              Your payment has been verified successfully.
+            </p>
             {transactionDetails && (
-              <div className="text-left bg-gray-50 rounded p-4 mt-4">
-                <p className="text-sm">
-                  <strong>Transaction ID:</strong> {transactionDetails.txnid}
+              <div className="text-left bg-white/10 backdrop-blur-sm rounded-lg p-5 mt-6 space-y-2 font-inria">
+                <p className="text-white/90 text-sm">
+                  <strong className="text-white">Transaction ID:</strong> {transactionDetails.txnid}
                 </p>
-                <p className="text-sm">
-                  <strong>PayU ID:</strong> {transactionDetails.mihpayid}
+                <p className="text-white/90 text-sm">
+                  <strong className="text-white">PayU ID:</strong> {transactionDetails.mihpayid}
                 </p>
-                <p className="text-sm">
-                  <strong>Amount:</strong> ₹{transactionDetails.amt}
+                <p className="text-white/90 text-sm">
+                  <strong className="text-white">Amount:</strong> ₹{transactionDetails.amt}
                 </p>
                 {transactionDetails.bank_ref_num && (
-                  <p className="text-sm">
-                    <strong>Bank Ref:</strong> {transactionDetails.bank_ref_num}
+                  <p className="text-white/90 text-sm">
+                    <strong className="text-white">Bank Ref:</strong>{" "}
+                    {transactionDetails.bank_ref_num}
                   </p>
                 )}
               </div>
             )}
+            <Link
+              href={"/"}
+              className="gradient-border-btn w-full mt-6 py-3 px-6 text-white font-semibold hover:bg-white/30 transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              <Home className="w-5 h-5" />
+              Go to Home
+            </Link>
           </>
         ) : (
           <>
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <X className="w-8 h-8 text-red-500" />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-white/20 backdrop-blur-sm">
+              <X className="w-10 h-10 text-red-400" strokeWidth={3} />
             </div>
-            <h1 className="text-2xl font-bold text-red-600 mb-2">Payment Verification Failed</h1>
-            <p className="text-gray-600">Unable to verify your payment. Please contact support.</p>
+            <h1 className="text-3xl font-bold text-white mb-3 font-baloo">
+              Payment Verification Failed
+            </h1>
+            <p className="text-white/90 mb-6 text-lg">
+              Unable to verify your payment. Please contact support if amount was deducted.
+            </p>
+            <Link
+              href={"/"}
+              className="gradient-border-btn w-full mt-6 py-3 px-6 text-white font-semibold hover:bg-white/30 transition-all duration-200 flex items-center justify-center gap-2 font-inria"
+            >
+              <Home className="w-5 h-5" />
+              Go to Home
+            </Link>
           </>
         )}
       </div>
