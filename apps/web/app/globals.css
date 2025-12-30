@@ -128,9 +128,6 @@
   }
 }
 
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
 
 .bg-grad {
   background:
@@ -403,4 +400,8 @@
 
 [data-sonner-toast] [data-button]:hover {
   background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
