@@ -1,9 +1,9 @@
-import Hero from "@/components/hero/hero";
+import HeroWrapper from "@/components/hero/hero-wrapper";
 import About from "@/components/about/about";
 const Playground = () => {
   return (
     <div>
-      <Hero />
+      <HeroWrapper />
       <About />
     </div>
   );
