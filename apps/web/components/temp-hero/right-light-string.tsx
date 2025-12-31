@@ -27,7 +27,7 @@ const RightLightString = () => (
     <path
       d="M494.724 312.599C422.893 215.351 230.947 22.7758 37.8076 30.4676"
       stroke="#FFFFFF"
-      strokeWidth="4"
+      strokeWidth="2"
     />
     <g filter="url(#filter0_f_260_657)" className="right-bulb1">
       <circle

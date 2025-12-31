@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inria_Sans } from "next/font/google";
 import "./globals.css";
 import { fonts } from "@/fonts";
 import { Toaster } from "sonner";

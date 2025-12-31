@@ -2,18 +2,18 @@
 
 import { useRef } from "react";
 import { useParallax } from "./hooks";
-import { LightStrings } from "./components";
 import {
   BackgroundLayer,
   PeacockLeftLayer,
   OwlRightDecorationLayer,
-  PeacockBehindLayer,
   GirlLayer,
   LogoLayer,
   GradientOverlay,
   PeacockRightLayer,
   Parrot,
 } from "./layers";
+import FireworksEffect from "@/components/coming-soon/fireworks-effects";
+import { LightStrings } from "./components";
 
 export default function TempHero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -24,6 +24,8 @@ export default function TempHero() {
       ref={containerRef}
       className="min-h-screen w-full overflow-hidden relative 2xl:max-h-[56.25vw] 2xl:min-h-[56.25vw]"
     >
+      <FireworksEffect />
+
       <BackgroundLayer mouse={mouse} scrollY={scrollY} />
 
       <PeacockLeftLayer mouse={mouse} scrollY={scrollY} />
@@ -34,7 +36,7 @@ export default function TempHero() {
       {/* <PeacockBehindLayer mouse={mouse} scrollY={scrollY} /> */}
 
       <LogoLayer mouse={mouse} scrollY={scrollY}>
-        {/* <LightStrings mouse={mouse} scrollY={scrollY} /> */}
+        <LightStrings />
       </LogoLayer>
 
       <GirlLayer mouse={mouse} scrollY={scrollY} />
