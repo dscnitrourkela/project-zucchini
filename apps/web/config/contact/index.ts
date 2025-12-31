@@ -3,7 +3,7 @@ export interface ContactPerson {
   name: string;
   role: string;
   phone: string;
-  image?: string; // Optional for now
+  image?: string;
 }
 
 export const contactsFirstRow: ContactPerson[] = [
@@ -12,12 +12,16 @@ export const contactsFirstRow: ContactPerson[] = [
     name: "Sidheshwar Mahananda",
     role: "(Convenor-NITRUTSAV)",
     phone: "+91-8267862398",
+    image:
+      "https://res.cloudinary.com/drf3eatfm/image/upload/v1767139442/nitrutsav-2026/eo2bsfu5xno4fe0dqrse.jpg",
   },
   {
     id: "shiba",
     name: "Shiba Nanda Sethy",
     role: "(Convenor-NITRUTSAV)",
     phone: "+91-8267862398",
+    image:
+      "https://res.cloudinary.com/drf3eatfm/image/upload/v1767139442/nitrutsav-2026/eo2bsfu5xno4fe0dqrse.jpg",
   },
 ];
 
@@ -27,5 +31,7 @@ export const contactsSecondRow: ContactPerson[] = [
     name: "Debadutta Nayak",
     role: "(Organizing Team-NITRUTSAV)",
     phone: "+91-7855034580",
+    image:
+      "https://res.cloudinary.com/drf3eatfm/image/upload/v1767139442/nitrutsav-2026/eo2bsfu5xno4fe0dqrse.jpg",
   },
 ];

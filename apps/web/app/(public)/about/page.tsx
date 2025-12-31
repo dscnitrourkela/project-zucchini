@@ -1,51 +1,88 @@
-import type { Metadata } from "next";
-import ContactSection from "@/components/about/contact";
-import DummyAbout from "@/components/about/dummy-about";
-import { SectionHeading } from "@/components/ui";
-import AboutSection from "@/components/about/about";
-import AboutCard from "./about-card";
-import VideoCard from "./video-card";
+"use client";
 
-export const metadata: Metadata = {
-  title: "About | Nitrutsav 2026",
-  description:
-    "Learn about Nitrutsav 2026, NIT Rourkela's premier literary and cultural festival celebrating creativity, innovation, and cultural heritage.",
+import { useState, useEffect } from "react";
+import AboutCard from "../../../components/about/about-card";
+import VideoCard from "../../../components/about/video-card";
+
+const lengthConfigs = {
+  aboveLLG: {
+    aboutCard: {
+      1: 150,
+      2: 70,
+    },
+    videoCard: {
+      1: 180,
+      2: 250,
+      3: 100,
+    },
+    breakpoint: 1140,
+  },
+  llg: {
+    aboutCard: {
+      1: 100,
+      2: 50,
+    },
+    videoCard: {
+      1: 150,
+      2: 250,
+      3: 350,
+    },
+    breakpoint: 1000,
+  },
+  lmd: {
+    aboutCard: {
+      1: 100,
+      2: 50,
+    },
+    videoCard: {
+      1: 150,
+      2: 250,
+      3: 300,
+    },
+    breakpoint: 470,
+  },
 };
 
+function getLengthByScreenSize(width: number) {
+  if (width >= lengthConfigs.aboveLLG.breakpoint) {
+    return lengthConfigs.aboveLLG;
+  } else if (width >= lengthConfigs.llg.breakpoint) {
+    return lengthConfigs.llg;
+  } else {
+    return lengthConfigs.lmd;
+  }
+}
+
 export default function AboutPage() {
+  const [currentLength, setCurrentLength] = useState(() => {
+    if (typeof window !== "undefined") {
+      return getLengthByScreenSize(window.innerWidth);
+    }
+    return lengthConfigs.llg;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      const newLength = getLengthByScreenSize(window.innerWidth);
+      setCurrentLength(newLength);
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <main className="about-bg-image min-h-screen grid place-items-center">
-      {/* <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="min-h-screen flex flex-col justify-center items-center">
-          <div className="w-full">
-            <SectionHeading title="ABOUT US " className="text-center" containerClassName="mb-20" />
-            <DummyAbout />
+    <main className="about-bg-image min-h-screen lmd:grid lmd:place-items-center">
+      <div className="w-full pt-32 lmd:pt-0">
+        <div className="max-w-full lmd:max-w-5xl llg:max-w-6xl mx-auto flex flex-col lmd:flex-row lmd:items-center justify-between lmd:gap-4 px-5">
+          <div className="lmd:-skew-y-13 w-full flex justify-start lmd:block">
+            <AboutCard length={currentLength.aboutCard} />
           </div>
-        </div>
-        <div className="min-h-screen flex flex-col justify-center items-center">
-          <div className="w-full">
-            {" "}
-            <SectionHeading
-              title="CONTACT US "
-              className="text-center"
-              containerClassName="mb-20"
-            />
-            <ContactSection />
-          </div>
-        </div>
-
-        <div className="mt-20">d</div>
-      </div> */}
-
-      {/* <AboutSection /> */}
-
-      <div className="w-full py-52">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-          <div className="-skew-y-13">
-            <AboutCard />
-          </div>
-          <div className="skew-y-13">
-            <VideoCard />
+          <div className="lmd:skew-y-13 my-20 lmd:my-0 w-full flex justify-end lmd:block lmd:w-full">
+            <VideoCard length={currentLength.videoCard} />
           </div>
         </div>
       </div>

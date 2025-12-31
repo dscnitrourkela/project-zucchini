@@ -3,7 +3,10 @@
 * {
   box-sizing: border-box;
 }
-
+body {
+  padding: 0;
+  margin: 0;
+}
 :root {
   --bg-image: url("https://res.cloudinary.com/drf3eatfm/image/upload/v1767005164/nitrutsav-2026/gsnj4mjupteth0nktnla.jpg");
   --rainbow-grad: background: linear-gradient(
@@ -22,6 +25,9 @@
   --font-baloo: var(--font-baloo);
   --font-inria: var(--font-inria);
   --font-berry: var(--font-berry);
+  --breakpoint-llg: 1140px;
+  --breakpoint-lmd: 970px;
+  --breakpoint-lsm: 470px;
 }
 
 /* Hero animations */

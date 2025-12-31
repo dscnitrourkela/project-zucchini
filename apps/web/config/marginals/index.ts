@@ -18,7 +18,7 @@ export const navItems = [
   },
   {
     label: "FAQs",
-    href: "/coming-soon",
+    href: "/faqs",
   },
   {
     label: "MUN",

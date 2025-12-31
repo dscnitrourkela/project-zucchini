@@ -1,11 +1,19 @@
 import { SectionHeading } from "@/components/ui";
 import NUText from "./nu-text";
 
-export default function AboutCard() {
+export default function AboutCard({
+  length,
+}: {
+  length: {
+    1: number;
+    2: number;
+  };
+}) {
+  const { 1: length1, 2: length2 } = length;
   return (
-    <div className="max-w-lg flex flex-col items-center w-full gap-4">
-      <SectionHeading title="About Us" lineLength={150} />
-      <div className="about-card-body font-inria text-xl">
+    <div className="max-w-lg lmd:max-w-md llg:max-w-lg w-full flex flex-col items-center gap-4">
+      <SectionHeading title="About Us" lineLength={length1} lineClassName="lsm:block hidden" />
+      <div className="about-card-body font-inria text-lg llg:text-xl">
         NITRUTSAV&apos;26 is the annual cultural extravaganza of NIT Rourkela — a celebration of
         creativity, talent, and youthful spirit. Bringing together artists, performers, and
         innovators from across the nation, the fest promises three days of high-energy events,
@@ -14,7 +22,7 @@ export default function AboutCard() {
         lifetime.
       </div>
 
-      <NUText lineLength={70} />
+      <NUText lineLength={length2} />
     </div>
   );
 }
