@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Keyboard, FreeMode, Autoplay } from "swiper/modules";
+import Lines from "@/components/ui/lines";
 import "swiper/css";
 
 export default function EventSwiper({
@@ -48,7 +49,7 @@ export default function EventSwiper({
               className="
                 relative h-[346px] md:h-[371px] w-full
                 transition-all duration-500 ease-out
-                scale-90 opacity-60 z-10 origin-left
+                scale-80 opacity-60 z-10 origin-left
                 group-[.swiper-slide-active]:scale-100
                 group-[.swiper-slide-active]:opacity-100
                 group-[.swiper-slide-active]:z-20
@@ -73,9 +74,20 @@ export default function EventSwiper({
         ))}
       </Swiper>
 
-      {/* Decorative White Lines */}
-      <div className="absolute top-[13px] md:top-[17px] left-[300px] md:left-[324px] right-0 h-[2px] bg-white pointer-events-none z-10" />
-      <div className="absolute top-[356px] md:top-[385px] left-[300px] md:left-[324px] right-0 h-[2px] bg-white pointer-events-none z-10" />
+      {/* Decorative Lines */}
+      <Lines
+        className="absolute top-[13px] md:top-[17px] left-[340px]  right-0 pointer-events-none z-10"
+        length={1000}
+        flowDirection="rtl"
+      />
+      <Lines
+        className="absolute top-[356px] md:top-[385px] left-[340px]  right-0 pointer-events-none z-10"
+        flowDirection="rtl"
+        length={1000}
+      />
+
+      <div className="absolute top-0 -right-30 h-full w-32 md:w-48 bg-gradient-to-l from-black to-transparent pointer-events-none z-30" />
+      <div className="absolute top-0 -left-30 h-full w-32 md:w-48 bg-gradient-to-r from-black to-transparent pointer-events-none z-30" />
     </div>
   );
 }

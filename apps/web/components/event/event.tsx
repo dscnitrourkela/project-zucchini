@@ -44,9 +44,9 @@ export default function Event() {
   }, [activeIndex]);
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden bg-black py-20">
+    <div className="relative w-full min-h-screen overflow-hidden events-bg py-20">
       {/* BACKGROUNDS */}
-      <Image
+      {/* <Image
         src={Images.BackgroundImg2}
         alt="Color Background"
         fill
@@ -68,7 +68,7 @@ export default function Event() {
           width={712}
           className="object-contain opacity-[70%] grayscale mix-blend-color-dodge scale-110"
         />
-      </div>
+      </div> */}
 
       {/* DARK MASK */}
       <div

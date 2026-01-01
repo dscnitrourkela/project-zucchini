@@ -3,7 +3,7 @@ import React, { JSX } from "react";
 import PlatinumSponsors from "../../../components/sponsors/platinum";
 
 const background =
-  "https://res.cloudinary.com/drf3eatfm/image/upload/v1767167221/nitrutsav-2026/xrmiyw8urc19ipocaoii.webp";
+  "https://res.cloudinary.com/drf3eatfm/image/upload/v1767283927/nitrutsav-2026/ggdb93tvuuukh6csh745.webp";
 
 export default function SponsorsPage(): JSX.Element {
   return (

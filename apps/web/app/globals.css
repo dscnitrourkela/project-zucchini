@@ -1,39 +1,5 @@
 @import "tailwindcss";
 
-/* Berryfield Font Family */
-@font-face {
-  font-family: "Berryfield";
-  src: url("/fonts/Berryfield Light.otf") format("opentype");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Berryfield";
-  src: url("/fonts/Berryfield Regular.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Berryfield";
-  src: url("/fonts/Berryfield Heavy.otf") format("opentype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Also define as 'Berryfield Regular' for direct reference */
-@font-face {
-  font-family: "Berryfield Regular";
-  src: url("/fonts/Berryfield Regular.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -413,6 +379,14 @@ html::-webkit-scrollbar {
   background-attachment: fixed;
 }
 
+.events-bg {
+  background-image: url("https://res.cloudinary.com/drf3eatfm/image/upload/v1767282146/nitrutsav-2026/n85qpfin1wkgjmsfa9bj.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+}
+
 .about-bg-image {
   background-image: url("https://res.cloudinary.com/drf3eatfm/image/upload/v1767129472/nitrutsav-2026/tmbppapvqiq8y8kyxo5k.webp");
   background-size: cover;
@@ -421,6 +395,13 @@ html::-webkit-scrollbar {
   background-attachment: fixed;
 }
 
+.spons-bg-image {
+  background-image: url("https://res.cloudinary.com/drf3eatfm/image/upload/v1767283927/nitrutsav-2026/ggdb93tvuuukh6csh745.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
 .step-indicator-active {
   border-radius: 33px;
   background: rgba(255, 255, 255, 0.16);

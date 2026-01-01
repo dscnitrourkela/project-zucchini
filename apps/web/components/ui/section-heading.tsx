@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import Lines from "./lines";
 
 interface SectionHeadingProps {
@@ -19,7 +20,7 @@ export default function SectionHeading({
   showLines = true,
   className = "",
   containerClassName = "",
-  textClassName = "font-berry uppercase text-xl text-white",
+  textClassName = "",
   lineLength = 300,
   borderWidth = "0.5px",
   borderRadius = "0 19.598px",
@@ -40,7 +41,11 @@ export default function SectionHeading({
     >
       {showLines && <Lines length={lineLength} className={lineClassName} />}
       <div className={`gradient-border px-5 py-4 ${className}`} style={customStyles}>
-        <h1 className={`${textClassName} whitespace-nowrap`}>{title}</h1>
+        <h1
+          className={cn("whitespace-nowrap font-berry uppercase text-xl text-white", textClassName)}
+        >
+          {title}
+        </h1>
       </div>
       {showLines && <Lines flowDirection="rtl" length={lineLength} className={lineClassName} />}
     </div>

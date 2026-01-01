@@ -20,19 +20,21 @@ interface PaymentParams {
 }
 
 function generateHash(params: PaymentParams, salt: string): string {
-  const key = params.key;
-  const txnid = params.txnid;
-  const amount = params.amount;
-  const productinfo = params.productinfo;
-  const firstname = params.firstname;
-  const email = params.email;
-  const udf1 = params.udf1 || "";
-  const udf2 = params.udf2 || "";
-  const udf3 = params.udf3 || "";
-  const udf4 = params.udf4 || "";
-  const udf5 = params.udf5 || "";
+  const key = (params.key || "").trim();
+  const txnid = (params.txnid || "").trim();
+  const amount = (params.amount || "").trim();
+  const productinfo = (params.productinfo || "").trim();
+  const firstname = (params.firstname || "").trim();
+  const email = (params.email || "").trim();
+  const udf1 = (params.udf1 || "").trim();
+  const udf2 = (params.udf2 || "").trim();
+  const udf3 = (params.udf3 || "").trim();
+  const udf4 = (params.udf4 || "").trim();
+  const udf5 = (params.udf5 || "").trim();
 
-  const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|${udf1}|${udf2}|${udf3}|${udf4}|${udf5}||||||${salt}`;
+  const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|${udf1}|${udf2}|${udf3}|${udf4}|${udf5}||||||${salt.trim()}`;
+
+  console.log("Hash String:", hashString);
 
   return createHash("sha512").update(hashString).digest("hex");
 }
@@ -97,16 +99,18 @@ export async function POST(req: NextRequest) {
     }
 
     const origin = req.nextUrl.origin;
+
+    const formattedAmount = Number(amount).toFixed(2);
+
     const options = {
       key: process.env.PAYU_KEY!,
       txnid: transaction.txnId,
-      amount: String(amount) + ".00",
+      amount: formattedAmount,
       productinfo: `Registration fees for ${type === "MUN" ? "MUN 2026" : "Nitrutsav 26"}`,
       firstname: name,
       email,
       surl: `${origin}/api/callback`,
       furl: `${origin}/api/callback`,
-      udf1: `Registration fees for ${type === "MUN" ? "MUN 2026" : "Nitrutsav 26"}`,
     };
 
     const salt = process.env.PAYU_SALT;

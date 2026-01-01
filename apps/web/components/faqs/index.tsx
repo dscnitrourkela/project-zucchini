@@ -24,7 +24,11 @@ export default function FAQ() {
     <section className="relative min-h-screen overflow-hidden">
       <div className="relative z-10 flex flex-col items-center w-full max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 pt-24 md:pt-32 lg:pt-40 pb-10 md:pb-16 lg:pb-10">
         <div className="max-7xl mx-auto w-full">
-          <SectionHeading title="FAQ'S" containerClassName="mb-20" />
+          <SectionHeading
+            title="FAQ'S"
+            containerClassName="mb-20"
+            textClassName="text-2xl md:text-4xl"
+          />
         </div>
 
         <div
