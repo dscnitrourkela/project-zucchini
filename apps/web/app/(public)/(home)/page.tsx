@@ -31,6 +31,17 @@ export default function Home() {
   const hasAnimated = useRef(false);
 
   useEffect(() => {
+    const hasVisited = sessionStorage.getItem("hasVisitedHome");
+    if (hasVisited) {
+      setShowPreloader(false);
+      setIsActive(true);
+      setRemoveGif(true);
+      setImagesLoaded(true);
+      setTextAnimationComplete(true);
+      hasAnimated.current = true;
+      return;
+    }
+
     let loadedCount = 0;
     const totalImages = IMAGES_TO_PRELOAD.length;
 
@@ -62,6 +73,7 @@ export default function Home() {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Enter" && canEnter && showPreloader && !hasAnimated.current) {
         hasAnimated.current = true;
+        sessionStorage.setItem("hasVisitedHome", "true");
         setIsActive(true);
         setShowPreloader(false);
       }
@@ -73,6 +85,7 @@ export default function Home() {
   const handleClick = useCallback(() => {
     if (canEnter && !hasAnimated.current) {
       hasAnimated.current = true;
+      sessionStorage.setItem("hasVisitedHome", "true");
       setIsActive(true);
       setShowPreloader(false);
     }
@@ -156,13 +169,7 @@ export default function Home() {
         <Hero />
       </div>
 
-      {/* CSS for ink mask animation with soft feathered edges */}
       <style jsx global>{`
-        
-
-
-
-
           .ink-mask {
           mask-image: url("/ink-spread-5.gif");
           mask-repeat: no-repeat;
