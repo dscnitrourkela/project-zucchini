@@ -16,6 +16,8 @@ export const nuLogo =
   "https://res.cloudinary.com/drf3eatfm/image/upload/v1767004636/nitrutsav-2026/w1colugpdpcwbomeusye.svg";
 
 export const HERO_IMAGES = {
+  mainBackground:
+    "https://res.cloudinary.com/drf3eatfm/image/upload/v1767262034/nitrutsav-2026/pmlogcv1tcfjwujylf19.webp",
   girl: "https://res.cloudinary.com/drf3eatfm/image/upload/v1767206478/nitrutsav-2026/gbm94mbh547tfiubue0s.webp",
   background:
     "https://res.cloudinary.com/drf3eatfm/image/upload/v1767206477/nitrutsav-2026/dc25xlv5laevejdndtux.webp",
