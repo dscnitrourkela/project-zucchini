@@ -1,13 +1,42 @@
-export const faqImages = {
-  // Image 90 - Main background (cosmic/nebula with bright light source)
-  main: "/faq-images/cosmic-nebula.png",
-
-  // Image 84 - Secondary background (carnival masks with colorful foliage and feathers)
-  secondary: "/faq-images/carnival-masks.png",
-
-  // Image 115 - Overlay image (Native American chief with colorful headdress)
-  overlay: "/faq-images/native-chief.png",
-
-  // Feather overlay for bottom corners
-  feather: "/faq-images/feather.png",
-};
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+export interface FAQAccordionItemProps {
+  item: FAQItem;
+  isExpanded: boolean;
+  onClick: () => void;
+  index: number;
+}
+export const faqData: FAQItem[] = [
+  {
+    question: "Are there any registration fees for participating in NITRUTSAV Events?",
+    answer:
+      "Yes, a small registration fee is there. Check the event details on the website for specific information.",
+  },
+  {
+    question: "Are there any registration fees for participating in NITRUTSAV Events?",
+    answer:
+      "Yes, a small registration fee is there. Check the event details on the website for specific information.",
+  },
+  {
+    question: "Are there any registration fees for participating in NITRUTSAV Events?",
+    answer:
+      "Yes, a small registration fee is there. Check the event details on the website for specific information.",
+  },
+  {
+    question: "Are there any registration fees for participating in NITRUTSAV Events?",
+    answer:
+      "Yes, a small registration fee is there. Check the event details on the website for specific information.",
+  },
+  {
+    question: "Are there any registration fees for participating in NITRUTSAV Events?",
+    answer:
+      "Yes, a small registration fee is there. Check the event details on the website for specific information.",
+  },
+  {
+    question: "Are there any registration fees for participating in NITRUTSAV Events?",
+    answer:
+      "Yes, a small registration fee is there. Check the event details on the website for specific information.",
+  },
+];

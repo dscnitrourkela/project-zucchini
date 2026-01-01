@@ -15,7 +15,7 @@ export default function EventCategory({
   setActiveCategory,
 }: EventCategoryProps) {
   return (
-    <div className="flex flex-col items-end justify-start gap-3 pt-2 pr-4">
+    <div className="flex flex-col items-end justify-start gap-3 pt-2 pr-4 md:block hidden">
       {categories.map((category) => {
         const isActive = activeCategory === category;
         return (

@@ -34,7 +34,7 @@ export function BackgroundLayer({ mouse, scrollY }: ParallaxLayerProps) {
 export function PeacockLeftLayer({ mouse, scrollY }: ParallaxLayerProps) {
   return (
     <div
-      className="hidden md:block absolute left-[-10vw] md:left-[15vw] bottom-[-5vw] md:bottom-[-20vw] w-[40vw] md:w-[45vw] h-[40vw] md:h-[45vw] z-[5] pointer-events-none"
+      className="hidden md:block absolute left-[-10vw] md:left-[15vw] bottom-[-5vw] md:bottom-[-20vw] w-[40vw] md:w-[45vw] h-[40vw] md:h-[45vw] z-[12] pointer-events-none"
       style={{
         transform: `translate(${mouse.x * PARALLAX_MOUSE.owls.x}vw, ${mouse.y * PARALLAX_MOUSE.owls.y}vw) rotate(-8deg) translateY(${scrollY * PARALLAX_SCROLL.owls}px)`,
         transition: `transform ${TRANSITIONS.owls}s ease-out`,
@@ -48,7 +48,7 @@ export function PeacockLeftLayer({ mouse, scrollY }: ParallaxLayerProps) {
 export function PeacockRightLayer({ mouse, scrollY }: ParallaxLayerProps) {
   return (
     <div
-      className="hidden md:block absolute right-[-10vw] md:right-[15vw] bottom-[-5vw] md:bottom-[-20vw] w-[40vw] md:w-[45vw] h-[40vw] md:h-[45vw] z-[5] pointer-events-none"
+      className="hidden md:block absolute right-[-10vw] md:right-[15vw] bottom-[-5vw] md:bottom-[-20vw] w-[40vw] md:w-[45vw] h-[40vw] md:h-[45vw] z-[15] pointer-events-none"
       style={{
         transform: `translate(${mouse.x * PARALLAX_MOUSE.owls.x}vw, ${mouse.y * PARALLAX_MOUSE.owls.y}vw) rotate(8deg) translateY(${scrollY * PARALLAX_SCROLL.owls}px)`,
         transition: `transform ${TRANSITIONS.owls}s ease-out`,
@@ -62,7 +62,7 @@ export function PeacockRightLayer({ mouse, scrollY }: ParallaxLayerProps) {
 export function Parrot({ mouse, scrollY }: ParallaxLayerProps) {
   return (
     <div
-      className="hidden md:block absolute left-[-20vw] md:left-[-15vw] bottom-[-10vw] md:bottom-[-15vw] w-[50vw] md:w-[35vw] h-[50vw] md:h-[35vw] z-[6] pointer-events-none"
+      className="hidden md:block absolute left-[-20vw] md:left-[-15vw] bottom-[-10vw] md:bottom-[-15vw] w-[50vw] md:w-[35vw] h-[50vw] md:h-[35vw] z-[16] pointer-events-none"
       style={{
         transform: `translate(${mouse.x * PARALLAX_MOUSE.peacockFeathers.x}vw, ${mouse.y * PARALLAX_MOUSE.peacockFeathers.y}vw) rotate(38deg) translateY(${scrollY * PARALLAX_SCROLL.owls}px)`,
         transition: `transform ${TRANSITIONS.owls}s ease-out`,
@@ -76,7 +76,7 @@ export function Parrot({ mouse, scrollY }: ParallaxLayerProps) {
 export function OwlRightDecorationLayer({ mouse, scrollY }: ParallaxLayerProps) {
   return (
     <div
-      className="hidden md:block absolute right-[-15vw] md:right-[-10vw] bottom-[-10vw] md:bottom-[-10vw] w-[40vw] md:w-[30vw] h-[40vw] md:h-[30vw] z-[7] pointer-events-none"
+      className="hidden md:block absolute right-[-15vw] md:right-[-10vw] bottom-[-10vw] md:bottom-[-10vw] w-[40vw] md:w-[30vw] h-[40vw] md:h-[30vw] z-[15] pointer-events-none"
       style={{
         transform: `translate(${mouse.x * PARALLAX_MOUSE.owlRight.x}vw, ${mouse.y * PARALLAX_MOUSE.owlRight.y}vw) rotate(-31deg) translateY(${scrollY * PARALLAX_SCROLL.owls}px)`,
         transition: `transform ${TRANSITIONS.owls}s ease-out`,

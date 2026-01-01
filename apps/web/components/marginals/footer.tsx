@@ -19,7 +19,7 @@ export default function Footer() {
           src={footerImages.background}
           alt="Footer Background"
           fill
-          className="object-cover object-center rounded-t-[80px]"
+          className="object-cover object-center rounded-t-[80px] pointer-events-none"
           priority={false}
         />
       </div>

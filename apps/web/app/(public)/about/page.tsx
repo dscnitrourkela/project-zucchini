@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import AboutCard from "../../../components/about/about-card";
 import VideoCard from "../../../components/about/video-card";
+import { SectionHeading } from "@/components/ui";
+import ContactSection from "@/components/contact/contact";
 
 const lengthConfigs = {
   aboveLLG: {
@@ -75,17 +77,25 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <main className="about-bg-image min-h-screen lmd:grid lmd:place-items-center">
-      <div className="w-full pt-32 lmd:pt-0">
-        <div className="max-w-full lmd:max-w-5xl llg:max-w-6xl mx-auto flex flex-col lmd:flex-row lmd:items-center justify-between lmd:gap-4 px-5">
-          <div className="lmd:-skew-y-13 w-full flex justify-start lmd:block">
-            <AboutCard length={currentLength.aboutCard} />
-          </div>
-          <div className="lmd:skew-y-13 my-20 lmd:my-0 w-full flex justify-end lmd:block lmd:w-full">
-            <VideoCard length={currentLength.videoCard} />
+    <>
+      <main className="about-bg-image min-h-screen lmd:grid lmd:place-items-center pt-20">
+        <div className="w-full pt-32 lmd:pt-0">
+          <div className="max-w-full lmd:max-w-5xl llg:max-w-6xl mx-auto flex flex-col lmd:flex-row lmd:items-center justify-between lmd:gap-4 px-5">
+            <div className="lmd:-skew-y-13 w-full flex justify-start lmd:block">
+              <AboutCard length={currentLength.aboutCard} />
+            </div>
+            <div className="lmd:skew-y-13 my-20 lmd:my-0 w-full flex justify-end lmd:block lmd:w-full">
+              <VideoCard length={currentLength.videoCard} />
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+      <main className="about-bg-image min-h-screen pb-32 pt-20">
+        <div className="h-full max-w-7xl mx-auto px-10" id="contact">
+          <SectionHeading title="Contact Us" containerClassName="mb-20" />
+          <ContactSection />
+        </div>
+      </main>
+    </>
   );
 }

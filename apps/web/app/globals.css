@@ -71,7 +71,7 @@ html::-webkit-scrollbar {
 }
 
 :root {
-  --bg-image: url("https://res.cloudinary.com/drf3eatfm/image/upload/v1767005164/nitrutsav-2026/gsnj4mjupteth0nktnla.jpg");
+  --bg-image: url("https://res.cloudinary.com/drf3eatfm/image/upload/v1767255256/nitrutsav-2026/zrvo2nfffqjgzyo2pghz.webp");
   --rainbow-grad: background: linear-gradient(
       234deg,
       #fffabe 0.01%,
@@ -406,7 +406,7 @@ html::-webkit-scrollbar {
 }
 
 .reg-bg-image {
-  background-image: url("https://res.cloudinary.com/drf3eatfm/image/upload/v1767015682/nitrutsav-2026/rabeslf2kcfodhwb1hmk.jpg");
+  background-image: url("https://res.cloudinary.com/drf3eatfm/image/upload/v1767255377/nitrutsav-2026/asytet27tlzxufxs8oiy.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -720,8 +720,7 @@ html::-webkit-scrollbar {
 }
 
 .hero-bg {
-  background-color: #000;
-  background-image: url("/hero/bg-hero.png");
+  background-image: url("https://res.cloudinary.com/drf3eatfm/image/upload/v1767262034/nitrutsav-2026/pmlogcv1tcfjwujylf19.webp");
   background-size: 102% auto;
   background-position: center -15;
   background-repeat: no-repeat;

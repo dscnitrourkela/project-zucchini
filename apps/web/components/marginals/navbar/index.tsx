@@ -6,16 +6,22 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { navItems, navbarImages } from "@/config/marginals";
+import { Images } from "@/config/events";
 import GradientUnderline from "./gradient";
 import CountdownTimer from "./countdown-timer";
 import MusicVisualizer from "./music-visualizer";
+import { useEventCategory } from "@/contexts/event-category-context";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isCategoryClosing, setIsCategoryClosing] = useState(false);
   const pathname = usePathname();
+  const { activeCategory, setActiveCategory, categories } = useEventCategory();
+  const isEventsPage = pathname === "/events";
 
   const isActiveRoute = (href: string) => {
     return pathname === href;
@@ -26,6 +32,18 @@ export default function Header() {
   const toggleMenu = () => {
     if (isMenuOpen) handleCloseMenu();
     else setIsMenuOpen(true);
+  };
+
+  const handleCloseCategoryMenu = () => setIsCategoryClosing(true);
+
+  const toggleCategoryMenu = () => {
+    if (isCategoryOpen) handleCloseCategoryMenu();
+    else setIsCategoryOpen(true);
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setActiveCategory(category);
+    handleCloseCategoryMenu();
   };
 
   useEffect(() => {
@@ -87,7 +105,7 @@ export default function Header() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-6 md:gap-12">
+        <div className="flex items-center gap-4 md:gap-12">
           <div className="hidden md:block">
             <CountdownTimer />
           </div>
@@ -95,6 +113,24 @@ export default function Header() {
           {/* <div className="hidden md:block">
             <MusicVisualizer />
           </div> */}
+
+          {/* Mobile Event Category Button - Only visible on events page */}
+          {isEventsPage && (
+            <button
+              onClick={toggleCategoryMenu}
+              className="md:hidden relative w-8 h-8 focus:outline-none z-50"
+              aria-label="Event Categories"
+            >
+              <Image
+                src={Images.iconimage}
+                alt="Event Categories"
+                fill
+                className={`object-contain transition-all duration-300 ${
+                  isCategoryOpen && !isCategoryClosing ? "scale-110" : ""
+                }`}
+              />
+            </button>
+          )}
 
           {/* Mobile Burger Menu */}
           <button
@@ -163,6 +199,47 @@ export default function Header() {
               );
             })}
           </nav>
+        </div>
+      )}
+
+      {/* Mobile Event Category Dropdown */}
+      {isCategoryOpen && (
+        <div
+          className="fixed inset-0 min-h-screen bg-black/95 flex flex-col items-center justify-center md:hidden"
+          style={{
+            zIndex: 44,
+            animation: isCategoryClosing
+              ? "slideFadeOut 0.3s ease-in forwards"
+              : "slideFadeIn 0.3s ease-out forwards",
+          }}
+          onAnimationEnd={() => {
+            if (isCategoryClosing) {
+              setIsCategoryOpen(false);
+              setIsCategoryClosing(false);
+            }
+          }}
+        >
+          <div className="flex flex-col gap-6 text-center">
+            <h3 className="text-white/60 text-sm uppercase tracking-widest font-inria mb-2">
+              Event Categories
+            </h3>
+            {categories.map((category) => {
+              const isActive = activeCategory === category;
+              return (
+                <button
+                  key={category}
+                  onClick={() => handleCategorySelect(category)}
+                  className={`text-xl font-calistoga uppercase tracking-wider transition-all duration-300 ${
+                    isActive
+                      ? "bg-clip-text text-transparent bg-gradient-to-r from-[#EA0B0F] via-[#F3BC16] to-[#FF0092] scale-110"
+                      : "text-white/70 hover:text-white"
+                  }`}
+                >
+                  {category}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </header>

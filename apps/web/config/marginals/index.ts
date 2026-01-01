@@ -1,6 +1,6 @@
 export const navbarImages = {
   mobileLogo:
-    "https://res.cloudinary.com/drf3eatfm/image/upload/v1767166243/nitrutsav-2026/j6ft36khfnysuy0ywl7n.png",
+    "https://res.cloudinary.com/drf3eatfm/image/upload/v1767257203/nitrutsav-2026/jphfi4vqdk859paqxad5.webp",
 };
 
 export const navItems = [
@@ -17,15 +17,15 @@ export const navItems = [
     href: "/events",
   },
   {
-    label: "Contact",
-    href: "/contact",
+    label: "Faqs",
+    href: "/faqs",
+  },
+  {
+    label: "Sponsors",
+    href: "/sponsors",
   },
   {
     label: "MUN",
     href: "/register/mun",
-  },
-  {
-    label: "Register",
-    href: "/register",
   },
 ];

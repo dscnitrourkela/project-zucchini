@@ -13,9 +13,9 @@ import EventSwiper from "./eventswiper";
 import EventInfo from "./eventinfo";
 import EventCategory from "./eventcatagory";
 import { useState, useRef, useEffect } from "react";
+import { useEventCategory } from "@/contexts/event-category-context";
 import "swiper/css";
 
-// Category Mapping
 const categories: Record<string, any[]> = {
   "Flagship Events": FlagshipEvents,
   "Pro Shows": ProShows,
@@ -25,15 +25,18 @@ const categories: Record<string, any[]> = {
 };
 
 export default function Event() {
-  const [activeCategory, setActiveCategory] = useState("Flagship Events");
+  const { activeCategory, setActiveCategory } = useEventCategory();
   const [activeIndex, setActiveIndex] = useState(0);
   const textSwiperRef = useRef<any>(null);
 
-  // Get current events list
   const currentEvents = categories[activeCategory] || ProShows;
   const activeEvent = currentEvents[activeIndex];
 
-  // Sync Text Swiper with activeIndex
+  // Reset to first slide when category changes
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [activeCategory]);
+
   useEffect(() => {
     if (textSwiperRef.current) {
       textSwiperRef.current.slideTo(activeIndex);
@@ -82,15 +85,12 @@ export default function Event() {
           <EventSwiper events={currentEvents} onSlideChange={setActiveIndex} />
         </div>
 
-        {/* EVENT INFO & CATEGORY MENU */}
         <div className="w-full max-w-[90vw] mx-auto mt-2 mb-2 flex flex-col md:grid md:grid-cols-2 gap-10 md:gap-14 px-4 text-white">
-          {/* LEFT: EVENT DETAILS (VERTICAL SWIPER) */}
           <EventInfo
             events={currentEvents}
             onSwiper={(swiper) => (textSwiperRef.current = swiper)}
           />
 
-          {/* RIGHT: CATEGORY MENU */}
           <EventCategory
             categories={Object.keys(categories)}
             activeCategory={activeCategory}

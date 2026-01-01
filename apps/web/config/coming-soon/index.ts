@@ -1,9 +1,9 @@
 export const images = {
   background:
-    "https://res.cloudinary.com/drf3eatfm/image/upload/v1766171464/nitrutsav-2026/x9zsdcbtmubp44sl46ng.png",
-  logo: "https://res.cloudinary.com/drf3eatfm/image/upload/v1766171461/nitrutsav-2026/agjfesi1yynklfobnikj.png",
+    "https://res.cloudinary.com/drf3eatfm/image/upload/v1767256386/nitrutsav-2026/vlgfmtlgph7ltfjtzv3s.webp",
+  logo: "https://res.cloudinary.com/drf3eatfm/image/upload/v1767256459/nitrutsav-2026/jtlvsiviwun3qa6gp23i.webp",
   balloon:
-    "https://res.cloudinary.com/drf3eatfm/image/upload/v1766171468/nitrutsav-2026/eiclfcyknmercylaontm.png",
+    "https://res.cloudinary.com/drf3eatfm/image/upload/v1767256533/nitrutsav-2026/ejsih2yhvzq2jaemzeju.webp",
   notFound:
-    "https://res.cloudinary.com/drf3eatfm/image/upload/v1766179052/nitrutsav-2026/vozimd1jdqohbaqmd09y.png",
+    "https://res.cloudinary.com/drf3eatfm/image/upload/v1767256605/nitrutsav-2026/l5dcuo4dh0pvtzcctcn2.webp",
 };

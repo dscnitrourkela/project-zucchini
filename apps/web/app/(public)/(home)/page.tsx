@@ -1,9 +1,10 @@
-import DummyHero from "@/components/temp-hero-2/dummy-hero";
+"use client";
+import Hero from "@/components/hero";
 
 export default function Home() {
   return (
-    <>
-      <DummyHero />
-    </>
+    <div className="hero-bg">
+      <Hero />
+    </div>
   );
 }
