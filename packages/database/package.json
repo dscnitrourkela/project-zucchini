@@ -11,7 +11,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "drizzle-orm": "^0.37.0",
+    "drizzle-orm": "^0.45.2",
     "pg": "^8.13.1",
     "dotenv": "^16.4.7",
     "@repo/shared-types": "workspace:*"
