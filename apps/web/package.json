@@ -20,7 +20,7 @@
     "@repo/shared-utils": "workspace:*",
     "@repo/ui": "workspace:*",
     "@types/qrcode.react": "^3.0.0",
-    "axios": "^1.13.2",
+    "axios": "^1.15.0",
     "cloudinary": "^2.8.0",
     "clsx": "^2.1.1",
     "firebase-admin": "^13.6.0",
